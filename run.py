@@ -149,7 +149,7 @@ while True:
         #  ensures they're confirmed on Binance)
         # ===================================
 
-        if minute == 30 and last_run_slot != current_hour_slot:
+        if minute == 0 and last_run_slot != current_hour_slot:
 
             clear_screen()
             logger.info(f"=== SCAN START {now.strftime('%H:%M UTC')} ===")
