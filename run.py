@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from core.binance.client import BinanceClient
 from core.binance.downloader import OHLCVDownloader
@@ -43,19 +43,21 @@ def print_next_scan():
 
     now = now_utc()
 
-    if now.minute < 30:
+    next_scan = (
+        now.replace(
+            minute=0,
+            second=0,
+            microsecond=0
+        )
+        + timedelta(hours=1)
+    )
 
-        scan_hour = now.hour
-
-    else:
-
-        scan_hour = (
-            now.hour + 1
-        ) % 24
+    ist_hour = (next_scan.hour + 5) % 24
+    ist_minute = 30
 
     print(
         f"\nNext Scan: "
-        f"{scan_hour:02d}:30 IST\n"
+        f"{ist_hour:02d}:{ist_minute:02d} IST\n"
     )
 
 

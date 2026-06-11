@@ -28,7 +28,7 @@ class MSSDetectorV2:
         )
 
         displacement = (
-            current_body > previous_body * 1
+            current_body > previous_body * 0.5
         )
 
         swing_highs = [

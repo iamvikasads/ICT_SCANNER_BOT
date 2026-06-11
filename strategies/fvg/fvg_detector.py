@@ -37,7 +37,7 @@ class FVGDetector:
                 body_2 = abs(candle_2["close"] - candle_2["open"])
 
                 # Displacement: middle candle must be impulsive
-                if body_1 == 0 or body_2 < body_1 * 1.2:
+                if body_1 == 0 or body_2 < body_1 * 1.0:
                     continue
 
                 gap_size = candle_3["low"] - candle_1["high"]

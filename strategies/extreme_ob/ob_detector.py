@@ -93,7 +93,7 @@ class OrderBlockDetector:
                 body_1 = abs(origin["close"] - origin["open"])
                 body_2 = abs(candle_2["close"] - candle_2["open"])
 
-                if body_1 == 0 or body_2 < body_1 * 1.8:
+                if body_1 == 0 or body_2 < body_1 * 1.1:
                     continue
 
                 gap_size = origin["low"] - candle_3["high"]
