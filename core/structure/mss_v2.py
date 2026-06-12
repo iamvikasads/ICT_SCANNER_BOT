@@ -50,6 +50,7 @@ class MSSDetectorV2:
         confirmed_index = len(candles) - 2
 
         window_end = confirmed_candle["timestamp"]
+
         window_start = (
             window_end
             - (4 * 60 * 60 * 1000)
@@ -62,28 +63,35 @@ class MSSDetectorV2:
         bearish_close = (
             current_close < current_open
         )
-        print(
-        f"STRUCTURE={structure} | "
-        f"HIGH_BREAK={current_high > last_swing_high['price']} | "
-        f"LOW_BREAK={current_low < last_swing_low['price']} | "
-        f"BULLISH_CLOSE={bullish_close} | "
-        f"BEARISH_CLOSE={bearish_close} | "
-        f"DISPLACEMENT={displacement}"
+
+        high_break = (
+            current_high > last_swing_high["price"] * 0.999
+            or
+            current_close > last_swing_high["price"]
         )
+
+        low_break = (
+            current_low < last_swing_low["price"] * 1.001
+            or
+            current_close < last_swing_low["price"]
+        )
+
+        
+
         # ==================================
-        # BULLISH MSS
+        # BULLISH MSS (Reversal)
         # ==================================
 
         if (
             structure == "bearish"
-            and current_high >
-            last_swing_high["price"]
+            and high_break
             and bullish_close
             and displacement
         ):
 
             return {
                 "mss": "bullish",
+                "type": "mss",
                 "broken_level":
                     last_swing_high["price"],
                 "broken_swing":
@@ -101,19 +109,79 @@ class MSSDetectorV2:
             }
 
         # ==================================
-        # BEARISH MSS
+        # BEARISH MSS (Reversal)
         # ==================================
 
         if (
             structure == "bullish"
-            and current_low <
-            last_swing_low["price"]
+            and low_break
             and bearish_close
             and displacement
         ):
 
             return {
                 "mss": "bearish",
+                "type": "mss",
+                "broken_level":
+                    last_swing_low["price"],
+                "broken_swing":
+                    last_swing_low,
+                "close":
+                    current_close,
+                "timestamp":
+                    window_end,
+                "window_start":
+                    window_start,
+                "window_end":
+                    window_end,
+                "mss_candle_index":
+                    confirmed_index
+            }
+
+        # ==================================
+        # BULLISH BOS (Continuation)
+        # ==================================
+
+        if (
+            structure == "bullish"
+            and high_break
+            and bullish_close
+            and displacement
+        ):
+
+            return {
+                "mss": "bullish",
+                "type": "bos",
+                "broken_level":
+                    last_swing_high["price"],
+                "broken_swing":
+                    last_swing_high,
+                "close":
+                    current_close,
+                "timestamp":
+                    window_end,
+                "window_start":
+                    window_start,
+                "window_end":
+                    window_end,
+                "mss_candle_index":
+                    confirmed_index
+            }
+
+        # ==================================
+        # BEARISH BOS (Continuation)
+        # ==================================
+
+        if (
+            structure == "bearish"
+            and low_break
+            and bearish_close
+            and displacement
+        ):
+
+            return {
+                "mss": "bearish",
+                "type": "bos",
                 "broken_level":
                     last_swing_low["price"],
                 "broken_swing":

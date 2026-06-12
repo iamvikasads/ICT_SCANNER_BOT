@@ -1,6 +1,6 @@
 class MarketStructure:
 
-    MIN_PRICE_DIFF_PCT = 0.003  # 0.3% minimum between swings
+    MIN_PRICE_DIFF_PCT = 0.002  # 0.3% minimum between swings
 
     def __init__(self):
         pass

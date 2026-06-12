@@ -1,25 +1,31 @@
 import time
-
 from core.binance.client import BinanceClient
 from core.binance.downloader import OHLCVDownloader
 from strategies.turtle_soup.sweep_detector import SweepDetector
 from core.storage.sweep_logger import SweepLogger
-
+from services.stats_manager import StatsManager
 
 class Strategy1Scanner:
 
     def __init__(self, downloader=None):
         self.client = BinanceClient()
+
         # Accept shared downloader for API efficiency
         self.downloader = downloader or OHLCVDownloader()
+
         self.sweep_detector = SweepDetector()
         self.sweep_logger = SweepLogger()
 
     def scan_symbol(self, symbol):
 
+        StatsManager.increment(
+            "s1_symbols_scanned"
+        )
+
         try:
 
             daily_levels = self.downloader.get_previous_day_levels(symbol)
+
             pdh = daily_levels["pdh"]
             pdl = daily_levels["pdl"]
 
@@ -39,7 +45,6 @@ class Strategy1Scanner:
             )
 
             if not result["sweep"]:
-                print(f"{symbol} -> No Sweep")
                 return
 
             direction = result["direction"]
@@ -50,7 +55,7 @@ class Strategy1Scanner:
                 symbol,
                 direction
             ):
-                print(f"{symbol} -> Sweep Exists")
+                
                 return
 
             self.sweep_logger.save_sweep(
@@ -59,6 +64,10 @@ class Strategy1Scanner:
                 direction=direction,
                 liquidity=result["liquidity"],
                 status="WAITING"
+            )
+
+            StatsManager.increment(
+                "s1_sweeps_found"
             )
 
             print(
@@ -72,8 +81,13 @@ class Strategy1Scanner:
     def run(self):
 
         symbols = self.client.get_top_25_symbols()
-        print("\nSTRATEGY 1 SWEEP SCANNER\n")
+
+        print(
+            "\nSTRATEGY 1 SWEEP SCANNER\n"
+        )
 
         for symbol in symbols:
+
             self.scan_symbol(symbol)
+
             time.sleep(0.2)

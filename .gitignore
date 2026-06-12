@@ -9,3 +9,5 @@ __pycache__/
 *.pyc
 
 data/chat_ids.txt
+
+data/stats.json

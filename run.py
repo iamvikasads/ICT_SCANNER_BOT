@@ -41,25 +41,28 @@ def now_utc():
 
 def print_next_scan():
 
-    now = now_utc()
+    now = datetime.now()
 
-    next_scan = (
-        now.replace(
-            minute=0,
+    if now.minute < 30:
+        next_scan = now.replace(
+            minute=30,
             second=0,
             microsecond=0
         )
-        + timedelta(hours=1)
-    )
-
-    ist_hour = (next_scan.hour + 5) % 24
-    ist_minute = 30
+    else:
+        next_scan = (
+            now.replace(
+                minute=30,
+                second=0,
+                microsecond=0
+            )
+            + timedelta(hours=1)
+        )
 
     print(
         f"\nNext Scan: "
-        f"{ist_hour:02d}:{ist_minute:02d} IST\n"
+        f"{next_scan.strftime('%H:%M')} IST\n"
     )
-
 
 # ===================================
 # INITIALIZE — inside try/except
@@ -100,7 +103,7 @@ clear_screen()
 logger.info("ICT SCANNER BOT STARTED")
 
 telegram.send_message(
-    "🟢 ICT SCANNER BOT STARTED\n\n"
+    "🟢 ICT SCANNER BOT STARTED \n\n"
     
 )
 
@@ -151,7 +154,7 @@ while True:
         #  ensures they're confirmed on Binance)
         # ===================================
 
-        if minute == 0 and last_run_slot != current_hour_slot:
+        if minute == 30 and last_run_slot != current_hour_slot:
 
             clear_screen()
             logger.info(f"=== SCAN START {now.strftime('%H:%M UTC')} ===")

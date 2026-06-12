@@ -1,5 +1,6 @@
 from core.storage.trade_logger import TradeLogger
 from alerts.telegram_client import TelegramClient
+from services.stats_manager import StatsManager
 
 
 class DailySummary:
@@ -11,16 +12,20 @@ class DailySummary:
     def send(self, setups_found=0, entries_fired=0, errors=0):
 
         try:
-            stats = self.trade_logger.get_daily_stats()
 
-            wins = stats["wins"]
-            losses = stats["losses"]
-            open_trades = stats["open"]
+            trade_stats = self.trade_logger.get_daily_stats()
+            stats = StatsManager.load()
+
+            wins = trade_stats["wins"]
+            losses = trade_stats["losses"]
+            open_trades = trade_stats["open"]
+
             total_closed = wins + losses
 
             winrate = (
                 round((wins / total_closed) * 100)
-                if total_closed > 0 else 0
+                if total_closed > 0
+                else 0
             )
 
             status_line = (
@@ -30,20 +35,47 @@ class DailySummary:
             )
 
             message = (
+
                 f"📊 DAILY SUMMARY\n"
-                f"{'─' * 22}\n"
-                f"Setups found:  {setups_found}\n"
-                f"Entries fired: {entries_fired}\n"
-                f"{'─' * 22}\n"
-                f"Wins:   {wins}\n"
-                f"Losses: {losses}\n"
-                f"Winrate: {winrate}%\n"
-                f"Open:   {open_trades}\n"
-                f"{'─' * 22}\n"
+                f"{'─' * 25}\n"
+
+                f"STRATEGY 1\n"
+                f"Scanned: {stats['s1_symbols_scanned']}\n"
+                f"Sweeps:  {stats['s1_sweeps_found']}\n"
+
+                f"{'─' * 25}\n"
+
+                f"STRATEGY 2\n"
+                f"Scanned: {stats['s2_symbols_scanned']}\n"
+                f"MSS:     {stats['s2_mss_found']}\n"
+                f"OB:      {stats['s2_ob_found']}\n"
+                f"Setups:  {stats['s2_setups_saved']}\n"
+
+                f"{'─' * 25}\n"
+
+                f"STRATEGY 3\n"
+                f"Scanned: {stats['s3_symbols_scanned']}\n"
+                f"MSS:     {stats['s3_mss_found']}\n"
+                f"FVG:     {stats['s3_fvg_found']}\n"
+                f"Setups:  {stats['s3_setups_saved']}\n"
+
+                f"{'─' * 25}\n"
+
+                f"WINS:    {wins}\n"
+                f"LOSSES:  {losses}\n"
+                f"WINRATE: {winrate}%\n"
+                f"OPEN:    {open_trades}\n"
+
+                f"{'─' * 25}\n"
+
                 f"{status_line}"
             )
 
             self.telegram.send_message(message)
 
+            # Reset stats after successful summary
+            StatsManager.reset()
+
         except Exception as e:
+
             print(f"[SUMMARY ERROR] {e}")

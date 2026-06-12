@@ -8,6 +8,7 @@ from core.structure.mss_v2 import MSSDetectorV2
 from strategies.extreme_ob.ob_detector import OrderBlockDetector
 from strategies.extreme_ob.setup_scanner import SetupScanner
 from core.storage.strategy2_logger import Strategy2Logger
+from services.stats_manager import StatsManager
 
 
 class Strategy2Scanner:
@@ -24,6 +25,10 @@ class Strategy2Scanner:
 
     def scan_symbol(self, symbol):
 
+        StatsManager.increment(
+            "s2_symbols_scanned"
+        )
+
         try:
 
             candles_4h = self.downloader.get_ohlcv(
@@ -32,55 +37,112 @@ class Strategy2Scanner:
                 limit=200
             )
 
-            swings = self.swing_detector.detect_swings(candles_4h)
-            structure = self.structure_detector.analyze(swings)
-            print(
-            f"{symbol} -> Structure: "
-            f"{structure['structure']}"
+            swings = self.swing_detector.detect_swings(
+                candles_4h,
+                lookback=2
             )
 
+            structure = self.structure_detector.analyze(
+                swings
+            )
+
+            
+
             mss_result = self.mss_detector.detect(
-                candles_4h, swings, structure["structure"]
+                candles_4h,
+                swings,
+                structure["structure"]
             )
 
             if mss_result["mss"] is None:
-                print(f"{symbol} -> No MSS")
+        
                 return
 
-            ob_result = self.ob_detector.detect(candles_4h, mss_result)
+            StatsManager.increment(
+                "s2_mss_found"
+            )
+
+            ob_result = self.ob_detector.detect(
+                candles_4h,
+                mss_result
+            )
 
             if ob_result["ob"] is None:
-                print(f"{symbol} -> No OB")
+            
                 return
+            StatsManager.increment(
+                "s2_ob_found"
+            )
 
-            setup = self.setup_scanner.create_setup(symbol, mss_result, ob_result)
+            setup = self.setup_scanner.create_setup(
+                symbol,
+                mss_result,
+                ob_result
+            )
 
             if setup is None:
                 return
 
             direction = setup["direction"]
 
-            if self.logger.setup_exists(symbol, direction):
-                print(f"{symbol} -> Setup Exists")
+            if self.logger.setup_exists(
+                symbol,
+                direction
+            ):
+            
                 return
 
-            setup["setup_id"] = f"{symbol}_{mss_result['timestamp']}"
-            setup["timestamp"] = mss_result["timestamp"]
+            setup["setup_id"] = (
+                f"{symbol}_"
+                f"{mss_result['timestamp']}"
+            )
+
+            setup["timestamp"] = (
+                mss_result["timestamp"]
+            )
+
             setup["symbol"] = symbol
-            setup["strategy"] = "MSS + EXTREME OB"
+
+            setup["strategy"] = (
+                "MSS + EXTREME OB"
+            )
+
             setup["status"] = "WAITING"
 
-            self.logger.save_setup(setup)
-            print(f"[S2] SETUP SAVED -> {symbol} {direction}")
+            self.logger.save_setup(
+                setup
+            )
+            StatsManager.increment(
+             "s2_setups_saved"
+            )
+
+            print(
+                f"[S2] SETUP SAVED -> "
+                f"{symbol} {direction}"
+            )
 
         except Exception as e:
-            print(f"[S2 ERROR] {symbol}: {e}")
+
+            print(
+                f"[S2 ERROR] "
+                f"{symbol}: {e}"
+            )
 
     def run(self):
 
-        symbols = self.client.get_top_25_symbols()
-        print("\nSTRATEGY 2 SCANNER\n")
+        symbols = (
+            self.client
+            .get_top_25_symbols()
+        )
+
+        print(
+            "\nSTRATEGY 2 SCANNER\n"
+        )
 
         for symbol in symbols:
-            self.scan_symbol(symbol)
+
+            self.scan_symbol(
+                symbol
+            )
+
             time.sleep(0.2)

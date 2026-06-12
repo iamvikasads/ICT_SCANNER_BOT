@@ -25,7 +25,7 @@ class Strategy1EntryScanner:
         self.csv_logger = CSVLogger()
         self.trade_logger = TradeLogger()
         self.risk_engine = RiskEngine()
-       
+        
         self.bias_filter = DailyBiasFilter()
         self.telegram = TelegramClient()
         self.message_builder = MessageBuilder()
@@ -39,11 +39,13 @@ class Strategy1EntryScanner:
             direction = sweep["direction"]
 
             # SESSION FILTER
-           
+            
             # FIX: Daily bias filter now applied to S1 too
-            if not self.bias_filter.allows_direction(symbol, direction):
-                print(f"{symbol} -> Daily bias against {direction}, skipping")
-                return
+            #if not self.bias_filter.allows_direction(symbol, direction):
+               # print(
+                    #f"{symbol} -> Daily bias against "
+                    #f"{direction} (IGNORED)"
+               # )
 
             candles_1h = self.downloader.get_ohlcv(
                 symbol=symbol,

@@ -20,25 +20,86 @@ class TouchScanner:
         candle_open = candle_1h["open"]
         candle_close = candle_1h["close"]
 
-        # Basic touch: candle overlaps the OB zone
-        touched = candle_low <= zone_high and candle_high >= zone_low
+        zone_size = (
+            zone_high - zone_low
+        )
 
-        if not touched:
+        zone_mid = (
+            zone_high + zone_low
+        ) / 2
+
+        # ==================================
+        # CE ENTRY BAND
+        #
+        # LONG:
+        # midpoint -> 60%
+        #
+        # SHORT:
+        # 40% -> midpoint
+        # ==================================
+
+        long_band_high = (
+            zone_mid
+            + (zone_size * 0.10)
+        )
+
+        short_band_low = (
+            zone_mid
+            - (zone_size * 0.10)
+        )
+
+        # ==================================
+        # LONG TOUCH
+        # ==================================
+
+        if direction == "LONG":
+
+            touched = (
+                candle_low <= long_band_high
+                and
+                candle_high >= zone_mid
+            )
+
+            if not touched:
+                return None
+
+        # ==================================
+        # SHORT TOUCH
+        # ==================================
+
+        elif direction == "SHORT":
+
+            touched = (
+                candle_high >= short_band_low
+                and
+                candle_low <= zone_mid
+            )
+
+            if not touched:
+                return None
+
+        else:
             return None
 
-        candle_range = candle_high - candle_low
+        candle_range = (
+            candle_high - candle_low
+        )
+
         if candle_range == 0:
             return None
 
-        body = abs(candle_close - candle_open)
-        body_ratio = body / candle_range
+        body = abs(
+            candle_close - candle_open
+        )
 
-        zone_mid = (zone_high + zone_low) / 2
+        body_ratio = (
+            body / candle_range
+        )
 
-        # LONG confirmation:
-        # - Candle must close bullish
-        # - Body must show displacement (>= 45% of range)
-        # - Close must be above OB midpoint (strong reaction)
+        # ==================================
+        # LONG CONFIRMATION
+        # ==================================
+
         if direction == "LONG":
 
             if candle_close <= candle_open:
@@ -50,11 +111,11 @@ class TouchScanner:
             if candle_close < zone_mid:
                 return None
 
-        # SHORT confirmation:
-        # - Candle must close bearish
-        # - Body must show displacement
-        # - Close must be below OB midpoint
-        if direction == "SHORT":
+        # ==================================
+        # SHORT CONFIRMATION
+        # ==================================
+
+        elif direction == "SHORT":
 
             if candle_close >= candle_open:
                 return None

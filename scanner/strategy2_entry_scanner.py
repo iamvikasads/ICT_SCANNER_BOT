@@ -38,9 +38,9 @@ class Strategy2EntryScanner:
 
             
 
-            if not self.bias_filter.allows_direction(symbol, direction):
-                print(f"{symbol} -> Daily bias against {direction}, skipping")
-                return
+            #if not self.bias_filter.allows_direction(symbol, direction):
+                #print(f"{symbol} -> Daily bias against {direction} (IGNORED)")
+                
 
             candles_4h = self.downloader.get_ohlcv(
                 symbol=symbol, interval="4h", limit=20
@@ -74,13 +74,10 @@ class Strategy2EntryScanner:
             candle_1h = candles_1h[-2]
             touch_result = self.touch_scanner.check_touch(setup, candle_1h)
 
-            print(
-                f"{symbol} | Close={candle_1h['close']} "
-                f"OB={ob_low}-{ob_high}"
-            )
+            
 
             if touch_result is None:
-                print(f"{symbol} -> No Entry Trigger")
+                
                 return
 
             risk = self.risk_engine.extreme_ob(

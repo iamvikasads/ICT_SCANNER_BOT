@@ -7,6 +7,7 @@ from core.structure.market_structure import MarketStructure
 from core.structure.mss_v2 import MSSDetectorV2
 from strategies.fvg.fvg_detector import FVGDetector
 from core.storage.strategy3_logger import Strategy3Logger
+from services.stats_manager import StatsManager
 
 
 class Strategy3Scanner:
@@ -22,6 +23,10 @@ class Strategy3Scanner:
 
     def scan_symbol(self, symbol):
 
+        StatsManager.increment(
+            "s3_symbols_scanned"
+        )
+
         try:
 
             candles_4h = self.downloader.get_ohlcv(
@@ -30,54 +35,110 @@ class Strategy3Scanner:
                 limit=200
             )
 
-            swings = self.swing_detector.detect_swings(candles_4h)
-            structure = self.structure_detector.analyze(swings)
-            print(
-            f"{symbol} -> Structure: "
-            f"{structure['structure']}"
+            swings = self.swing_detector.detect_swings(
+                candles_4h,
+                lookback=2
             )
+
+            structure = self.structure_detector.analyze(
+                swings
+            )
+
+            
+
             mss_result = self.mss_detector.detect(
-                candles_4h, swings, structure["structure"]
+                candles_4h,
+                swings,
+                structure["structure"]
             )
 
             if mss_result["mss"] is None:
-                print(f"{symbol} -> No MSS")
                 return
 
-            fvg_result = self.fvg_detector.detect(candles_4h, mss_result)
+            StatsManager.increment(
+                "s3_mss_found"
+            )
+
+            fvg_result = self.fvg_detector.detect(
+                candles_4h,
+                mss_result
+            )
 
             if fvg_result["fvg"] is None:
-                print(f"{symbol} -> No FVG")
+            
                 return
+            StatsManager.increment(
+                "s3_fvg_found"
+            )
 
             direction = fvg_result["direction"]
 
-            if self.logger.setup_exists(symbol, direction):
-                print(f"{symbol} -> Setup Exists")
+            if self.logger.setup_exists(
+                symbol,
+                direction
+            ):
+            
                 return
 
             setup_data = {
-                "setup_id": f"{symbol}_FVG_{fvg_result['timestamp']}",
-                "timestamp": fvg_result["timestamp"],
-                "symbol": symbol,
-                "strategy": "MSS + FVG",
-                "direction": direction,
-                "fvg_high": fvg_result["fvg_high"],
-                "fvg_low": fvg_result["fvg_low"],
-                "status": "WAITING"
+                "setup_id":
+                    f"{symbol}_FVG_{fvg_result['timestamp']}",
+
+                "timestamp":
+                    fvg_result["timestamp"],
+
+                "symbol":
+                    symbol,
+
+                "strategy":
+                    "MSS + FVG",
+
+                "direction":
+                    direction,
+
+                "fvg_high":
+                    fvg_result["fvg_high"],
+
+                "fvg_low":
+                    fvg_result["fvg_low"],
+
+                "status":
+                    "WAITING"
             }
 
-            self.logger.save_setup(setup_data)
-            print(f"[S3] SETUP SAVED -> {symbol} {direction}")
+            self.logger.save_setup(
+                setup_data
+            )
+            StatsManager.increment(
+             "s3_setups_saved"
+            )
+            print(
+                f"[S3] SETUP SAVED -> "
+                f"{symbol} {direction}"
+            )
 
         except Exception as e:
-            print(f"[S3 ERROR] {symbol}: {e}")
+
+            print(
+                f"[S3 ERROR] "
+                f"{symbol}: {e}"
+            )
 
     def run(self):
 
-        symbols = self.client.get_top_25_symbols()
-        print("\nSTRATEGY 3 SCANNER\n")
+        symbols = (
+            self.client
+            .get_top_25_symbols()
+        )
+
+        print(
+            "\nSTRATEGY 3 SCANNER\n"
+        )
 
         for symbol in symbols:
-            self.scan_symbol(symbol)
+
+            self.scan_symbol(
+                symbol
+            )
+
             time.sleep(0.2)
