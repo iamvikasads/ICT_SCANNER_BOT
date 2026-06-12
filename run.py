@@ -36,32 +36,30 @@ def clear_screen():
 
 
 def now_utc():
-    return datetime.now()
+    return datetime.utcnow()
 
 
 def print_next_scan():
 
-    now = datetime.now()
+    now = datetime.utcnow()
 
-    if now.minute < 30:
-        next_scan = now.replace(
-            minute=30,
+    next_scan = (
+        now.replace(
+            minute=0,
             second=0,
             microsecond=0
         )
-    else:
-        next_scan = (
-            now.replace(
-                minute=30,
-                second=0,
-                microsecond=0
-            )
-            + timedelta(hours=1)
-        )
+        + timedelta(hours=1)
+    )
+
+    next_scan_ist = next_scan + timedelta(
+        hours=5,
+        minutes=30
+    )
 
     print(
         f"\nNext Scan: "
-        f"{next_scan.strftime('%H:%M')} IST\n"
+        f"{next_scan_ist.strftime('%H:%M')} IST\n"
     )
 
 # ===================================
@@ -154,7 +152,7 @@ while True:
         #  ensures they're confirmed on Binance)
         # ===================================
 
-        if minute == 30 and last_run_slot != current_hour_slot:
+        if minute == 0 and last_run_slot != current_hour_slot:
 
             clear_screen()
             logger.info(f"=== SCAN START {now.strftime('%H:%M UTC')} ===")
