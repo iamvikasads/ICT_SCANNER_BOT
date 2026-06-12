@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta,UTC
 
 from core.binance.client import BinanceClient
 from core.binance.downloader import OHLCVDownloader
@@ -36,12 +36,12 @@ def clear_screen():
 
 
 def now_utc():
-    return datetime.utcnow()
+    return datetime.now(UTC).replace(tzinfo=None)
 
 
 def print_next_scan():
 
-    now = datetime.utcnow()
+    now = datetime.now(UTC).replace(tzinfo=None)
 
     next_scan = (
         now.replace(
