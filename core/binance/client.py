@@ -14,7 +14,10 @@ class BinanceClient:
 
         self.client = Client(
             BINANCE_API_KEY,
-            BINANCE_API_SECRET
+            BINANCE_API_SECRET,
+            requests_params={
+                "timeout": 20
+            }
         )
 
     def get_top_25_symbols(self):
