@@ -20,12 +20,13 @@ class MessageBuilder:
         zone_high = None
         zone_low = None
 
-        if strategy == "MSS + EXTREME OB":
+        # FIX #7 — Support updated strategy names (e.g., V4) using substring checks
+        if "EXTREME OB" in strategy:
             zone_label = "OB Zone"
             zone_high = setup["ob_high"]
             zone_low = setup["ob_low"]
 
-        elif strategy == "MSS + FVG":
+        elif "FVG" in strategy:
             zone_label = "FVG Zone"
             zone_high = setup["fvg_high"]
             zone_low = setup["fvg_low"]

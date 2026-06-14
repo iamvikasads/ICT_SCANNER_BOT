@@ -1,24 +1,26 @@
 import os
 import time
 import logging
-from datetime import datetime, timedelta,UTC
+from datetime import datetime, timedelta, UTC
 
 from core.binance.client import BinanceClient
 from core.binance.downloader import OHLCVDownloader
 
 from scanner.strategy1_scanner import Strategy1Scanner
 from scanner.strategy1_entry_scanner import Strategy1EntryScanner
-from scanner.strategy2_scanner import Strategy2Scanner
-from scanner.strategy2_entry_scanner import Strategy2EntryScanner
-from scanner.strategy3_scanner import Strategy3Scanner
-from scanner.strategy3_entry_scanner import Strategy3EntryScanner
+
+# Updated to V4 imports
+from scanner.strategy2_scanner_v4 import Strategy2Scanner
+from scanner.strategy2_entry_scanner_v4 import Strategy2EntryScanner
+
+from scanner.strategy3_scanner_v4 import Strategy3Scanner
+from scanner.strategy3_entry_scanner_v4 import Strategy3EntryScanner
 
 from services.trade_tracker import TradeTracker
 from services.daily_summary import DailySummary
 
 from alerts.telegram_client import TelegramClient
 from core.logger import logger
-
 
 # ===================================
 # SETTINGS

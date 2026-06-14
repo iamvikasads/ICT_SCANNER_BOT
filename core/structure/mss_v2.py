@@ -92,6 +92,10 @@ class MSSDetectorV2:
             return {
                 "mss": "bullish",
                 "type": "mss",
+                "mss_swing_high":
+                    last_swing_high,
+                "mss_swing_low":
+                    last_swing_low,
                 "broken_level":
                     last_swing_high["price"],
                 "broken_swing":
@@ -122,6 +126,10 @@ class MSSDetectorV2:
             return {
                 "mss": "bearish",
                 "type": "mss",
+                "mss_swing_high":
+                    last_swing_high,
+                "mss_swing_low":
+                    last_swing_low,
                 "broken_level":
                     last_swing_low["price"],
                 "broken_swing":
@@ -152,6 +160,10 @@ class MSSDetectorV2:
             return {
                 "mss": "bullish",
                 "type": "bos",
+                "mss_swing_high":
+                    last_swing_high,
+                "mss_swing_low":
+                    last_swing_low,
                 "broken_level":
                     last_swing_high["price"],
                 "broken_swing":
@@ -182,6 +194,10 @@ class MSSDetectorV2:
             return {
                 "mss": "bearish",
                 "type": "bos",
+                "mss_swing_high":
+                    last_swing_high,
+                "mss_swing_low":
+                    last_swing_low,
                 "broken_level":
                     last_swing_low["price"],
                 "broken_swing":

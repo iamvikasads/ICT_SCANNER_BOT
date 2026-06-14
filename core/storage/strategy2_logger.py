@@ -16,6 +16,10 @@ class Strategy2Logger:
 
         self._initialize_files()
 
+    # ==================================
+    # INIT FILES
+    # ==================================
+
     def _initialize_files(self):
 
         if not os.path.exists(
@@ -33,6 +37,7 @@ class Strategy2Logger:
                 )
 
                 writer.writerow([
+
                     "setup_id",
                     "timestamp",
                     "symbol",
@@ -40,7 +45,13 @@ class Strategy2Logger:
                     "direction",
                     "ob_high",
                     "ob_low",
+
+                    "rank_score",
+
+                    "liquidity_level",
+                    "liquidity_type",
                     "status"
+
                 ])
 
         if not os.path.exists(
@@ -58,6 +69,7 @@ class Strategy2Logger:
                 )
 
                 writer.writerow([
+
                     "setup_id",
                     "timestamp",
                     "symbol",
@@ -67,11 +79,12 @@ class Strategy2Logger:
                     "sl",
                     "tp",
                     "rr"
+
                 ])
 
-    # =====================
+    # ==================================
     # SAVE SETUP
-    # =====================
+    # ==================================
 
     def save_setup(
         self,
@@ -104,14 +117,24 @@ class Strategy2Logger:
 
                 setup["ob_low"],
 
+                setup.get(
+                    "rank_score",
+                    0
+                ),
+
+                setup["liquidity_level"],
+
+                setup["liquidity_type"],
+
                 setup["status"]
+
             ])
 
-    # =====================
-    # DUPLICATE CHECK
-    # =====================
+    # ==================================
+    # GET ACTIVE SETUP
+    # ==================================
 
-    def setup_exists(
+    def get_active_setup(
         self,
         symbol,
         direction
@@ -121,7 +144,7 @@ class Strategy2Logger:
             self.setup_file
         ):
 
-            return False
+            return None
 
         with open(
             self.setup_file,
@@ -154,13 +177,110 @@ class Strategy2Logger:
 
                 ):
 
-                    return True
+                    return row
 
-        return False
+        return None
 
-    # =====================
+    # ==================================
+    # DUPLICATE CHECK
+    # ==================================
+
+    def setup_exists(
+        self,
+        symbol,
+        direction
+    ):
+
+        return (
+
+            self.get_active_setup(
+                symbol,
+                direction
+            )
+
+            is not None
+
+        )
+
+    # ==================================
+    # REPLACE SETUP
+    # ==================================
+
+    def replace_setup(
+        self,
+        old_setup_id,
+        new_setup
+    ):
+
+        rows = []
+
+        with open(
+            self.setup_file,
+            "r"
+        ) as file:
+
+            reader = csv.DictReader(
+                file
+            )
+
+            for row in reader:
+
+                if (
+                    row["setup_id"]
+                    ==
+                    old_setup_id
+                ):
+
+                    row["status"] = (
+                        "REPLACED"
+                    )
+
+                rows.append(
+                    row
+                )
+
+        with open(
+            self.setup_file,
+            "w",
+            newline=""
+        ) as file:
+
+            writer = csv.DictWriter(
+
+                file,
+
+                fieldnames=[
+
+                    "setup_id",
+                    "timestamp",
+                    "symbol",
+                    "strategy",
+                    "direction",
+                    "ob_high",
+                    "ob_low",
+
+                    "rank_score",
+
+                    "liquidity_level",
+                    "liquidity_type",
+                    "status"
+
+                ]
+            )
+
+            writer.writeheader()
+
+            writer.writerows(
+                rows
+            )
+
+        self.save_setup(
+            new_setup
+        )
+
+    # ==================================
     # SAVE ENTRY
-    # =====================
+    # ==================================
 
     def save_entry(
         self,
@@ -196,17 +316,24 @@ class Strategy2Logger:
                 entry["tp"],
 
                 entry["rr"]
+
             ])
 
-    # =====================
-    # READ SETUPS
-    # =====================
+    # ==================================
+    # READ WAITING SETUPS
+    # ==================================
 
     def get_waiting_setups(
         self
     ):
 
         setups = []
+
+        if not os.path.exists(
+            self.setup_file
+        ):
+
+            return setups
 
         with open(
             self.setup_file,
@@ -231,9 +358,9 @@ class Strategy2Logger:
 
         return setups
 
-    # =====================
+    # ==================================
     # UPDATE STATUS
-    # =====================
+    # ==================================
 
     def update_status(
         self,
@@ -287,7 +414,13 @@ class Strategy2Logger:
                     "direction",
                     "ob_high",
                     "ob_low",
+
+                    "rank_score",
+
+                    "liquidity_level",
+                    "liquidity_type",
                     "status"
+
                 ]
             )
 
