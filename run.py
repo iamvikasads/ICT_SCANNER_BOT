@@ -19,7 +19,7 @@ from scanner.strategy3_entry_scanner_v4 import Strategy3EntryScanner
 from services.trade_tracker import TradeTracker
 from services.daily_summary import DailySummary
 
-from alerts.telegram_client import TelegramClient
+from alerts.discord_client import DiscordClient
 from core.logger import logger
 
 # ===================================
@@ -45,14 +45,32 @@ def print_next_scan():
 
     now = datetime.now(UTC).replace(tzinfo=None)
 
-    next_scan = (
-        now.replace(
-            minute=0,
+    if now.minute < 2:
+
+        next_scan = now.replace(
+            minute=2,
             second=0,
             microsecond=0
         )
-        + timedelta(hours=1)
-    )
+
+    elif now.minute < 32:
+
+        next_scan = now.replace(
+            minute=32,
+            second=0,
+            microsecond=0
+        )
+
+    else:
+
+        next_scan = (
+            now.replace(
+                minute=2,
+                second=0,
+                microsecond=0
+            )
+            + timedelta(hours=1)
+        )
 
     next_scan_ist = next_scan + timedelta(
         hours=5,
@@ -69,7 +87,7 @@ def print_next_scan():
 # so startup failures are reported
 # ===================================
 
-telegram = TelegramClient()
+discord = DiscordClient()
 
 try:
     # ONE shared BinanceClient and OHLCVDownloader
@@ -91,7 +109,7 @@ try:
 
 except Exception as init_err:
     logger.error(f"STARTUP FAILED: {init_err}")
-    telegram.send_message(f"🚨 ICT BOT STARTUP FAILED\n\n{init_err}")
+    discord.send_error(f"🚨 ICT BOT STARTUP FAILED\n\n{init_err}")
     raise SystemExit(1)
 
 
@@ -102,9 +120,8 @@ except Exception as init_err:
 clear_screen()
 logger.info("ICT SCANNER BOT STARTED")
 
-telegram.send_message(
-    "🟢 ICT SCANNER BOT STARTED \n\n"
-    
+discord.send_status(
+    "🟢 ICT SCANNER BOT STARTED"
 )
 
 print_next_scan()
@@ -126,7 +143,7 @@ while True:
 
         now = now_utc()
         minute = now.minute
-        current_hour_slot = now.strftime("%Y%m%d%H")
+        current_slot = now.strftime("%Y%m%d%H%M")
         today_date = now.strftime("%Y%m%d")
 
         # ===================================
@@ -154,7 +171,7 @@ while True:
         #  ensures they're confirmed on Binance)
         # ===================================
 
-        if minute == 0 and last_run_slot != current_hour_slot:
+        if minute in [2, 32] and last_run_slot != current_slot:
 
             clear_screen()
             logger.info(f"=== SCAN START {now.strftime('%H:%M UTC')} ===")
@@ -175,7 +192,7 @@ while True:
             except Exception as e:
                 error_count += 1
                 logger.error(f"Strategy 1 error: {e}")
-                telegram.send_message(f"⚠️ S1 ERROR\n{e}")
+                discord.send_error(f"⚠️ S1 ERROR\n{e}")
 
             shared_downloader.clear_cache()
 
@@ -192,7 +209,7 @@ while True:
             except Exception as e:
                 error_count += 1
                 logger.error(f"Strategy 2 error: {e}")
-                telegram.send_message(f"⚠️ S2 ERROR\n{e}")
+                discord.send_error(f"⚠️ S2 ERROR\n{e}")
 
             shared_downloader.clear_cache()
 
@@ -209,7 +226,7 @@ while True:
             except Exception as e:
                 error_count += 1
                 logger.error(f"Strategy 3 error: {e}")
-                telegram.send_message(f"⚠️ S3 ERROR\n{e}")
+                discord.send_error(f"⚠️ S3 ERROR\n{e}")
 
             shared_downloader.clear_cache()
 
@@ -225,9 +242,9 @@ while True:
             except Exception as e:
                 error_count += 1
                 logger.error(f"Tracker error: {e}")
-                telegram.send_message(f"⚠️ TRACKER ERROR\n{e}")
+                discord.send_error(f"⚠️ TRACKER ERROR\n{e}")
 
-            last_run_slot = current_hour_slot
+            last_run_slot = current_slot
             logger.info("=== SCAN COMPLETE ===")
             print_next_scan()
 
@@ -235,8 +252,8 @@ while True:
 
     except KeyboardInterrupt:
 
-        telegram.send_message(
-            "🔴 ICT SCANNER BOT STOPPED\n\nStopped manually."
+        discord.send_status(
+            "🔴 ICT SCANNER BOT STOPPED"
         )
         logger.info("Bot stopped by user")
         print("\nBOT STOPPED BY USER\n")
@@ -246,5 +263,5 @@ while True:
 
         error_count += 1
         logger.error(f"Main loop error: {e}")
-        telegram.send_message(f"🚨 ICT SCANNER ERROR\n\n{e}")
+        discord.send_error(f"🚨 ICT SCANNER ERROR\n\n{e}")
         time.sleep(10)

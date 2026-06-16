@@ -31,20 +31,17 @@ class FreshnessEngine:
             ):
                 continue
 
-            touched = (
+            direction = ob["direction"]
 
-                candle["low"]
-                <= ob_high
+            if direction == "LONG":
 
-                and
+                if candle["close"] < ob_low:
+                    return False
 
-                candle["high"]
-                >= ob_low
+            elif direction == "SHORT":
 
-            )
-
-            if touched:
-                return False
+                if candle["close"] > ob_high:
+                    return False
 
         return True
 

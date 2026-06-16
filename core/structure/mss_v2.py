@@ -3,6 +3,37 @@ class MSSDetectorV2:
     def __init__(self):
         pass
 
+    def get_previous_opposite_swing(
+        self,
+        target_swing,
+        all_swings,
+        opposite_type
+    ):
+
+        candidates = [
+
+            s
+
+            for s in all_swings
+
+            if (
+                s["timestamp"]
+                <
+                target_swing["timestamp"]
+            )
+            and (
+                s["type"]
+                ==
+                opposite_type
+            )
+
+        ]
+
+        if not candidates:
+            return None
+
+        return candidates[-1]
+
     def detect(self, candles, swings, structure):
 
         if len(candles) < 4:
@@ -41,11 +72,32 @@ class MSSDetectorV2:
             if s["type"] == "swing_low"
         ]
 
+        all_swings = sorted(
+            swings,
+            key=lambda x: x["timestamp"]
+        )
+
         if not swing_highs or not swing_lows:
             return {"mss": None}
 
         last_swing_high = swing_highs[-1]
         last_swing_low = swing_lows[-1]
+
+        paired_low_for_high = (
+            self.get_previous_opposite_swing(
+                last_swing_high,
+                all_swings,
+                "swing_low"
+            )
+        )
+
+        paired_high_for_low = (
+            self.get_previous_opposite_swing(
+                last_swing_low,
+                all_swings,
+                "swing_high"
+            )
+        )
 
         confirmed_index = len(candles) - 2
 
@@ -89,13 +141,18 @@ class MSSDetectorV2:
             and displacement
         ):
 
+            paired_low = paired_low_for_high
+
+            if paired_low is None:
+                return {"mss": None}
+
             return {
                 "mss": "bullish",
                 "type": "mss",
                 "mss_swing_high":
                     last_swing_high,
                 "mss_swing_low":
-                    last_swing_low,
+                    paired_low,
                 "broken_level":
                     last_swing_high["price"],
                 "broken_swing":
@@ -123,11 +180,16 @@ class MSSDetectorV2:
             and displacement
         ):
 
+            paired_high = paired_high_for_low
+
+            if paired_high is None:
+                return {"mss": None}
+
             return {
                 "mss": "bearish",
                 "type": "mss",
                 "mss_swing_high":
-                    last_swing_high,
+                    paired_high,
                 "mss_swing_low":
                     last_swing_low,
                 "broken_level":
@@ -157,13 +219,18 @@ class MSSDetectorV2:
             and displacement
         ):
 
+            paired_low = paired_low_for_high
+
+            if paired_low is None:
+                return {"mss": None}
+
             return {
                 "mss": "bullish",
                 "type": "bos",
                 "mss_swing_high":
                     last_swing_high,
                 "mss_swing_low":
-                    last_swing_low,
+                    paired_low,
                 "broken_level":
                     last_swing_high["price"],
                 "broken_swing":
@@ -191,11 +258,16 @@ class MSSDetectorV2:
             and displacement
         ):
 
+            paired_high = paired_high_for_low
+
+            if paired_high is None:
+                return {"mss": None}
+
             return {
                 "mss": "bearish",
                 "type": "bos",
                 "mss_swing_high":
-                    last_swing_high,
+                    paired_high,
                 "mss_swing_low":
                     last_swing_low,
                 "broken_level":

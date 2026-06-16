@@ -5,6 +5,9 @@ from core.binance.downloader import OHLCVDownloader
 from core.structure.swings import SwingDetector
 from core.structure.market_structure import MarketStructure
 from core.structure.mss_v2 import MSSDetectorV2
+from core.structure.external_swing_filter import (
+    ExternalSwingFilter
+)
 from core.liquidity.liquidity_engine import LiquidityEngine
 from services.stats_manager import StatsManager
 from core.storage.strategy2_logger import Strategy2Logger
@@ -26,6 +29,11 @@ class Strategy2Scanner:
         self.swing_detector = SwingDetector()
         self.structure_detector = MarketStructure()
         self.mss_detector = MSSDetectorV2()
+        
+        self.external_filter = (
+            ExternalSwingFilter()
+        )
+        
         self.logger = Strategy2Logger()
         self.liquidity_engine = LiquidityEngine()
 
@@ -56,13 +64,19 @@ class Strategy2Scanner:
                 lookback=2
             )
 
+            structure_swings = (
+                self.external_filter.filter(
+                    swings
+                )
+            )
+
             structure = self.structure_detector.analyze(
-                swings
+                structure_swings
             )
 
             mss_result = self.mss_detector.detect(
                 candles_4h,
-                swings,
+                structure_swings,
                 structure["structure"]
             )
 
@@ -82,6 +96,12 @@ class Strategy2Scanner:
             
             all_obs = self.ob_detector.detect(candles_1h, mss_result)
             
+            print(
+                f"[S2 DEBUG] {symbol} "
+                f"OBs Found = "
+                f"{len(all_obs.get('obs', []))}"
+            )
+
             # Check 1 — Guard against missing "obs"
             if not all_obs:
                 return
@@ -105,6 +125,12 @@ class Strategy2Scanner:
                 )
             ]
 
+            print(
+                f"[S2 DEBUG] {symbol} "
+                f"After PD Filter = "
+                f"{len(filtered_obs)}"
+            )
+
             # Check 2 — Empty filtered list
             if not filtered_obs:
                 return
@@ -116,6 +142,12 @@ class Strategy2Scanner:
                 candles_1h
             )
             
+            print(
+                f"[S2 DEBUG] {symbol} "
+                f"After Ranking = "
+                f"{len(ranked_obs)}"
+            )
+
             # Check 3 — Empty ranked list
             if not ranked_obs:
                 return
@@ -123,6 +155,12 @@ class Strategy2Scanner:
             # Select best OB
             best_ob = self.candidate_selector.select_best(
                 ranked_obs
+            )
+
+            print(
+                f"[S2 DEBUG] {symbol} "
+                f"Best OB = "
+                f"{best_ob is not None}"
             )
 
             if best_ob is None:
@@ -166,6 +204,12 @@ class Strategy2Scanner:
                     ),
                     swings=swings
                 )
+            )
+
+            print(
+                f"[S2 DEBUG] {symbol} "
+                f"Liquidity = "
+                f"{liquidity is not None}"
             )
 
             if liquidity is None:

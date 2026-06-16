@@ -1,5 +1,5 @@
 TOP_25_SYMBOLS = [
-   "ADAUSDT",
+    "ADAUSDT",
     "APTUSDT",
     "ARBUSDT",
     "ATOMUSDT",

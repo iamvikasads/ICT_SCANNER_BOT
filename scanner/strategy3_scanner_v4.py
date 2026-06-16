@@ -6,6 +6,9 @@ from core.binance.downloader import OHLCVDownloader
 from core.structure.swings import SwingDetector
 from core.structure.market_structure import MarketStructure
 from core.structure.mss_v2 import MSSDetectorV2
+from core.structure.external_swing_filter import (
+    ExternalSwingFilter
+)
 
 from core.liquidity.liquidity_engine import LiquidityEngine
 
@@ -62,6 +65,10 @@ class Strategy3Scanner:
 
         self.mss_detector = (
             MSSDetectorV2()
+        )
+        
+        self.external_filter = (
+            ExternalSwingFilter()
         )
 
         self.fvg_detector = (
@@ -127,18 +134,24 @@ class Strategy3Scanner:
                     lookback=2
                 )
             )
+            
+            structure_swings = (
+                self.external_filter.filter(
+                    swings
+                )
+            )
 
             structure = (
                 self.structure_detector
                 .analyze(
-                    swings
+                    structure_swings
                 )
             )
 
             mss_result = (
                 self.mss_detector.detect(
                     candles_4h,
-                    swings,
+                    structure_swings,
                     structure["structure"]
                 )
             )
@@ -179,6 +192,12 @@ class Strategy3Scanner:
             ):
                 return
 
+            print(
+                f"[S3 DEBUG] {symbol} "
+                f"FVGs Found = "
+                f"{len(fvg_result.get('fvgs', []))}"
+            )
+
             # Safety check: Explicitly verify fvgs key exists before ranking
             if not fvg_result.get(
                 "fvgs"
@@ -200,6 +219,12 @@ class Strategy3Scanner:
 
             ]
 
+            print(
+                f"[S3 DEBUG] {symbol} "
+                f"After PD Filter = "
+                f"{len(filtered_fvgs)}"
+            )
+
             # Score FVGs using 1H candles
             ranked_fvgs = (
                 self.fvg_ranker.score_all(
@@ -215,6 +240,12 @@ class Strategy3Scanner:
                     ranked_fvgs,
                     min_freshness=0.50
                 )
+            )
+
+            print(
+                f"[S3 DEBUG] {symbol} "
+                f"After Freshness = "
+                f"{len(ranked_fvgs)}"
             )
 
             if not ranked_fvgs:

@@ -88,20 +88,33 @@ class PDArrayFilter:
 
         eq = pd["eq"]
 
+        fvg_mid = (
+            fvg["fvg_high"]
+            +
+            fvg["fvg_low"]
+        ) / 2
+
+        print(
+            f"[PD DEBUG] "
+            f"{fvg['direction']} "
+            f"EQ={eq} "
+            f"MID={fvg_mid}"
+        )
+
         if fvg["direction"] == "LONG":
 
             return (
-                fvg["fvg_high"]
+                fvg_mid
                 <
-                eq
+                eq * 1.05
             )
 
         if fvg["direction"] == "SHORT":
 
             return (
-                fvg["fvg_low"]
+                fvg_mid
                 >
-                eq
+                eq * 0.95
             )
 
         return False

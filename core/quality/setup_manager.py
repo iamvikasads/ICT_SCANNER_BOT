@@ -18,12 +18,10 @@ class SetupManager:
 
         try:
 
-            current_score = int(
-                float(
-                    current_setup.get(
-                        "rank_score",
-                        0
-                    )
+            current_score = float(
+                current_setup.get(
+                    "rank_score",
+                    0
                 )
             )
 
@@ -33,12 +31,10 @@ class SetupManager:
 
         try:
 
-            new_score = int(
-                float(
-                    new_setup.get(
-                        "rank_score",
-                        0
-                    )
+            new_score = float(
+                new_setup.get(
+                    "rank_score",
+                    0
                 )
             )
 
