@@ -192,12 +192,6 @@ class Strategy3Scanner:
             ):
                 return
 
-            print(
-                f"[S3 DEBUG] {symbol} "
-                f"FVGs Found = "
-                f"{len(fvg_result.get('fvgs', []))}"
-            )
-
             # Safety check: Explicitly verify fvgs key exists before ranking
             if not fvg_result.get(
                 "fvgs"
@@ -219,12 +213,6 @@ class Strategy3Scanner:
 
             ]
 
-            print(
-                f"[S3 DEBUG] {symbol} "
-                f"After PD Filter = "
-                f"{len(filtered_fvgs)}"
-            )
-
             # Score FVGs using 1H candles
             ranked_fvgs = (
                 self.fvg_ranker.score_all(
@@ -240,12 +228,6 @@ class Strategy3Scanner:
                     ranked_fvgs,
                     min_freshness=0.50
                 )
-            )
-
-            print(
-                f"[S3 DEBUG] {symbol} "
-                f"After Freshness = "
-                f"{len(ranked_fvgs)}"
             )
 
             if not ranked_fvgs:

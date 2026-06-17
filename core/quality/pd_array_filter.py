@@ -94,13 +94,6 @@ class PDArrayFilter:
             fvg["fvg_low"]
         ) / 2
 
-        print(
-            f"[PD DEBUG] "
-            f"{fvg['direction']} "
-            f"EQ={eq} "
-            f"MID={fvg_mid}"
-        )
-
         if fvg["direction"] == "LONG":
 
             return (
