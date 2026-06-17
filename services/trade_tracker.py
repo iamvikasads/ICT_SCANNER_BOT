@@ -3,7 +3,7 @@ from datetime import datetime
 
 from core.binance.downloader import OHLCVDownloader
 from core.storage.trade_logger import TradeLogger
-from alerts.telegram_client import TelegramClient
+from alerts.discord_client import DiscordClient
 
 
 class TradeTracker:
@@ -12,7 +12,7 @@ class TradeTracker:
         # Accept shared downloader
         self.downloader = downloader or OHLCVDownloader()
         self.logger = TradeLogger()
-        self.telegram = TelegramClient()
+        self.discord = DiscordClient()
 
     def check_trade(self, trade):
 
@@ -128,7 +128,7 @@ class TradeTracker:
             f"Result: {r_label}"
         )
 
-        self.telegram.send_message(message)
+        self.discord.send_trade(message)
         print(f"[{result}] {symbol} {r_label}")
 
     def run(self):

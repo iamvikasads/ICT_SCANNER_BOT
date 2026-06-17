@@ -16,7 +16,7 @@ from core.risk.risk_engine import RiskEngine
 
 from core.filters.daily_bias import DailyBiasFilter
 
-from alerts.telegram_client import TelegramClient
+from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
 
 
@@ -66,8 +66,8 @@ class Strategy1EntryScanner:
             DailyBiasFilter()
         )
 
-        self.telegram = (
-            TelegramClient()
+        self.discord = (
+            DiscordClient()
         )
 
         self.message_builder = (
@@ -344,7 +344,7 @@ class Strategy1EntryScanner:
                 )
             )
 
-            self.telegram.send_message(
+            self.discord.send_entry(
                 message
             )
 

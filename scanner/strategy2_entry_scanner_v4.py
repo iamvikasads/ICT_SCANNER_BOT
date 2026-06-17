@@ -7,7 +7,7 @@ from strategies.extreme_ob.touch_scanner import TouchScanner
 from core.risk.risk_engine import RiskEngine
 from core.filters.daily_bias import DailyBiasFilter
 
-from alerts.telegram_client import TelegramClient
+from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
 
 
@@ -23,7 +23,7 @@ class Strategy2EntryScanner:
         self.risk_engine = RiskEngine()
         self.bias_filter = DailyBiasFilter()
 
-        self.telegram = TelegramClient()
+        self.discord = DiscordClient()
         self.message_builder = MessageBuilder()
 
     def process_setup(self, setup):
@@ -210,7 +210,7 @@ class Strategy2EntryScanner:
                 )
             )
 
-            self.telegram.send_message(
+            self.discord.send_entry(
                 message
             )
 

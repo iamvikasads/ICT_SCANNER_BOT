@@ -1,5 +1,5 @@
 from core.storage.trade_logger import TradeLogger
-from alerts.telegram_client import TelegramClient
+from alerts.discord_client import DiscordClient
 from services.stats_manager import StatsManager
 
 
@@ -7,7 +7,7 @@ class DailySummary:
 
     def __init__(self):
         self.trade_logger = TradeLogger()
-        self.telegram = TelegramClient()
+        self.discord = DiscordClient()
 
     def send(self, setups_found=0, entries_fired=0, errors=0):
 
@@ -71,7 +71,7 @@ class DailySummary:
                 f"{status_line}"
             )
 
-            self.telegram.send_message(message)
+            self.discord.send_status(message)
 
             # Reset stats after successful summary
             StatsManager.reset()
