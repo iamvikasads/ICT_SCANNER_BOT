@@ -96,11 +96,7 @@ class Strategy2Scanner:
             
             all_obs = self.ob_detector.detect(candles_1h, mss_result)
             
-            print(
-                f"[S2 DEBUG] {symbol} "
-                f"OBs Found = "
-                f"{len(all_obs.get('obs', []))}"
-            )
+            
 
             # Check 1 — Guard against missing "obs"
             if not all_obs:
@@ -125,11 +121,7 @@ class Strategy2Scanner:
                 )
             ]
 
-            print(
-                f"[S2 DEBUG] {symbol} "
-                f"After PD Filter = "
-                f"{len(filtered_obs)}"
-            )
+            
 
             # Check 2 — Empty filtered list
             if not filtered_obs:
@@ -142,12 +134,7 @@ class Strategy2Scanner:
                 candles_1h
             )
             
-            print(
-                f"[S2 DEBUG] {symbol} "
-                f"After Ranking = "
-                f"{len(ranked_obs)}"
-            )
-
+            
             # Check 3 — Empty ranked list
             if not ranked_obs:
                 return
@@ -157,12 +144,7 @@ class Strategy2Scanner:
                 ranked_obs
             )
 
-            print(
-                f"[S2 DEBUG] {symbol} "
-                f"Best OB = "
-                f"{best_ob is not None}"
-            )
-
+            
             if best_ob is None:
                 return
 
@@ -206,12 +188,7 @@ class Strategy2Scanner:
                 )
             )
 
-            print(
-                f"[S2 DEBUG] {symbol} "
-                f"Liquidity = "
-                f"{liquidity is not None}"
-            )
-
+            
             if liquidity is None:
                 return
 
