@@ -42,7 +42,7 @@ class OrderBlockDetectorV2:
 
         search_start = max(
             0,
-            mss_index - 15
+            mss_index - 18
         )
 
         search_candles = (

@@ -1,7 +1,7 @@
 class FVGDetectorV2:
 
-    SEARCH_BEFORE_MSS = 4
-    SEARCH_AFTER_MSS = 8
+    SEARCH_BEFORE_MSS = 8
+    SEARCH_AFTER_MSS = 16
 
     def __init__(self):
         pass
@@ -68,7 +68,7 @@ class FVGDetectorV2:
 
             if (
                 displacement_ratio
-                < 1.30
+                < 1.50
             ):
                 continue
 
@@ -93,7 +93,7 @@ class FVGDetectorV2:
 
             min_gap = (
                 candle_2["close"]
-                * 0.0005
+                * 0.0050
             )
 
             if gap_size < min_gap:
@@ -199,7 +199,7 @@ class FVGDetectorV2:
 
             min_gap = (
                 candle_2["close"]
-                * 0.0005
+                * 0.0050
             )
 
             if gap_size < min_gap:

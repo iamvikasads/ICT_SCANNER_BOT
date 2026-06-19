@@ -6,6 +6,7 @@ from core.storage.trade_logger import TradeLogger
 from strategies.extreme_ob.touch_scanner import TouchScanner
 from core.risk.risk_engine import RiskEngine
 from core.filters.daily_bias import DailyBiasFilter
+from core.structure.swings import SwingDetector
 
 from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
@@ -22,6 +23,7 @@ class Strategy2EntryScanner:
         self.touch_scanner = TouchScanner()
         self.risk_engine = RiskEngine()
         self.bias_filter = DailyBiasFilter()
+        self.swing_detector = SwingDetector()
 
         self.discord = DiscordClient()
         self.message_builder = MessageBuilder()
@@ -142,13 +144,45 @@ class Strategy2EntryScanner:
             if touch_result is None:
                 return
 
+            candles_1h = self.downloader.get_ohlcv(
+                symbol=symbol,
+                interval="1h",
+                limit=200
+            )
+
+            swings = self.swing_detector.detect_swings(
+                candles_1h,
+                lookback=3
+            )
+
+            latest_swing_low = None
+            latest_swing_high = None
+
+            swing_lows = [
+                s for s in swings
+                if s["type"] == "swing_low"
+            ]
+
+            swing_highs = [
+                s for s in swings
+                if s["type"] == "swing_high"
+            ]
+
+            if swing_lows:
+                latest_swing_low = swing_lows[-1]["price"]
+
+            if swing_highs:
+                latest_swing_high = swing_highs[-1]["price"]
+
             risk = (
                 self.risk_engine.extreme_ob(
                     direction=direction,
                     entry=candle_30m["close"],
                     ob_high=ob_high,
                     ob_low=ob_low,
-                    liquidity_level=liquidity_level
+                    liquidity_level=liquidity_level,
+                    latest_swing_low=latest_swing_low,
+                    latest_swing_high=latest_swing_high
                 )
             )
 

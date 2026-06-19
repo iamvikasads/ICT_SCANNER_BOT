@@ -109,7 +109,7 @@ class Strategy2Scanner:
             filtered_obs = [
                 ob
                 for ob in all_obs["obs"]
-                if ob.get("distance_to_mss", 999) <= 12
+                if ob.get("distance_to_mss", 999) <= 15
             ]
 
             filtered_obs = [

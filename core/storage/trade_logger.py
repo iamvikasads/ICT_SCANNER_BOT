@@ -110,13 +110,18 @@ class TradeLogger:
             writer.writerows(rows)
 
     def get_daily_stats(self):
-        today = datetime.now().strftime("%Y-%m-%d")
+        from datetime import datetime, timedelta
+
+        report_day = (
+            datetime.utcnow().date()
+            - timedelta(days=1)
+        ).strftime("%Y-%m-%d")
         wins = losses = open_count = 0
         with open(self.trade_file, "r", encoding="utf-8") as f:
             for row in csv.DictReader(f):
                 if row["status"] == "OPEN":
                     open_count += 1
-                if row["close_time"].startswith(today):
+                if row["close_time"].startswith(report_day):
                     if row["result"] == "WIN":
                         wins += 1
                     elif row["result"] == "LOSS":

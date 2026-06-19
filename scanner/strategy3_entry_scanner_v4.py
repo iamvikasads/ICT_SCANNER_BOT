@@ -22,6 +22,8 @@ from alerts.message_builder import (
     MessageBuilder
 )
 
+from core.structure.swings import SwingDetector
+
 
 class Strategy3EntryScanner:
 
@@ -65,6 +67,10 @@ class Strategy3EntryScanner:
 
         self.message_builder = (
             MessageBuilder()
+        )
+
+        self.swing_detector = (
+            SwingDetector()
         )
 
     def process_setup(
@@ -258,22 +264,46 @@ class Strategy3EntryScanner:
             if touch_result is None:
                 return
 
+            candles_1h = self.downloader.get_ohlcv(
+                symbol=symbol,
+                interval="1h",
+                limit=200
+            )
+
+            swings = self.swing_detector.detect_swings(
+                candles_1h,
+                lookback=3
+            )
+
+            latest_swing_low = None
+            latest_swing_high = None
+
+            swing_lows = [
+                s for s in swings
+                if s["type"] == "swing_low"
+            ]
+
+            swing_highs = [
+                s for s in swings
+                if s["type"] == "swing_high"
+            ]
+
+            if swing_lows:
+                latest_swing_low = swing_lows[-1]["price"]
+
+            if swing_highs:
+                latest_swing_high = swing_highs[-1]["price"]
+
             risk = (
-
                 self.risk_engine.fvg(
-
                     direction=direction,
-
                     entry=candle["close"],
-
                     fvg_high=fvg_high,
-
                     fvg_low=fvg_low,
-
-                    liquidity_level=liquidity_level
-
+                    liquidity_level=liquidity_level,
+                    latest_swing_low=latest_swing_low,
+                    latest_swing_high=latest_swing_high
                 )
-
             )
 
             if risk is None:

@@ -203,7 +203,9 @@ class RiskEngine:
         entry,
         ob_high,
         ob_low,
-        liquidity_level
+        liquidity_level,
+        latest_swing_low=None,
+        latest_swing_high=None
     ):
 
         buffer = (
@@ -214,8 +216,16 @@ class RiskEngine:
 
         if direction == "LONG":
 
+            base_sl = ob_low
+
+            if latest_swing_low is not None:
+                base_sl = min(
+                    ob_low,
+                    latest_swing_low
+                )
+
             sl = (
-                ob_low - buffer
+                base_sl - buffer
             )
 
             risk = (
@@ -229,8 +239,16 @@ class RiskEngine:
 
         else:
 
+            base_sl = ob_high
+
+            if latest_swing_high is not None:
+                base_sl = max(
+                    ob_high,
+                    latest_swing_high
+                )
+
             sl = (
-                ob_high + buffer
+                base_sl + buffer
             )
 
             risk = (
@@ -306,7 +324,9 @@ class RiskEngine:
         entry,
         fvg_high,
         fvg_low,
-        liquidity_level
+        liquidity_level,
+        latest_swing_low=None,
+        latest_swing_high=None
     ):
 
         buffer = (
@@ -317,8 +337,16 @@ class RiskEngine:
 
         if direction == "LONG":
 
+            base_sl = fvg_low
+
+            if latest_swing_low is not None:
+                base_sl = min(
+                    fvg_low,
+                    latest_swing_low
+                )
+
             sl = (
-                fvg_low - buffer
+                base_sl - buffer
             )
 
             risk = (
@@ -332,8 +360,16 @@ class RiskEngine:
 
         else:
 
+            base_sl = fvg_high
+
+            if latest_swing_high is not None:
+                base_sl = max(
+                    fvg_high,
+                    latest_swing_high
+                )
+
             sl = (
-                fvg_high + buffer
+                base_sl + buffer
             )
 
             risk = (

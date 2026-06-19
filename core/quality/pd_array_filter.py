@@ -60,7 +60,7 @@ class PDArrayFilter:
             return (
                 ob["ob_high"]
                 <
-                eq
+                eq * 1.05
             )
 
         if ob["direction"] == "SHORT":
@@ -68,7 +68,7 @@ class PDArrayFilter:
             return (
                 ob["ob_low"]
                 >
-                eq
+                eq * 0.95
             )
 
         return False
