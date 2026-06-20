@@ -22,6 +22,10 @@ from alerts.message_builder import (
     MessageBuilder
 )
 
+from services.stats_manager import (
+    StatsManager
+)
+
 from core.structure.swings import SwingDetector
 
 
@@ -359,6 +363,10 @@ class Strategy3EntryScanner:
 
                 "TRIGGERED"
 
+            )
+
+            StatsManager.increment(
+                "s3_entries_triggered"
             )
 
             message = (

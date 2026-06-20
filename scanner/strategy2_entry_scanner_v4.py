@@ -10,6 +10,7 @@ from core.structure.swings import SwingDetector
 
 from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
+from services.stats_manager import StatsManager
 
 
 class Strategy2EntryScanner:
@@ -235,6 +236,10 @@ class Strategy2EntryScanner:
             self.logger.update_status(
                 setup["setup_id"],
                 "TRIGGERED"
+            )
+
+            StatsManager.increment(
+                "s2_entries_triggered"
             )
 
             message = (
