@@ -18,6 +18,7 @@ from core.filters.daily_bias import DailyBiasFilter
 
 from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
+from services.stats_manager import StatsManager
 
 
 class Strategy1EntryScanner:
@@ -126,6 +127,10 @@ class Strategy1EntryScanner:
                     "EXPIRED"
                 )
 
+                StatsManager.increment(
+                    "s1_expired"
+                )
+
                 print(
                     f"{symbol} -> EXPIRED"
                 )
@@ -161,6 +166,10 @@ class Strategy1EntryScanner:
                         "INVALIDATED"
                     )
 
+                    StatsManager.increment(
+                        "s1_invalidated"
+                    )
+
                     print(
                         f"{symbol} "
                         f"-> INVALIDATED "
@@ -181,6 +190,10 @@ class Strategy1EntryScanner:
                         sweep_timestamp,
                         symbol,
                         "INVALIDATED"
+                    )
+
+                    StatsManager.increment(
+                        "s1_invalidated"
                     )
 
                     print(
@@ -352,6 +365,10 @@ class Strategy1EntryScanner:
                 sweep_timestamp,
                 symbol,
                 "TRIGGERED"
+            )
+
+            StatsManager.increment(
+                "s1_entries_triggered"
             )
 
             print(

@@ -75,6 +75,10 @@ class Strategy2EntryScanner:
                     "EXPIRED"
                 )
 
+                StatsManager.increment(
+                    "s2_expired"
+                )
+
                 print(
                     f"{symbol} -> Setup EXPIRED"
                 )
@@ -100,6 +104,10 @@ class Strategy2EntryScanner:
                         "INVALIDATED"
                     )
 
+                    StatsManager.increment(
+                        "s2_invalidated"
+                    )
+
                     print(
                         f"{symbol} -> OB INVALIDATED"
                     )
@@ -115,6 +123,10 @@ class Strategy2EntryScanner:
                     self.logger.update_status(
                         setup["setup_id"],
                         "INVALIDATED"
+                    )
+
+                    StatsManager.increment(
+                        "s2_invalidated"
                     )
 
                     print(

@@ -40,24 +40,33 @@ class DailySummary:
                 f"{'─' * 25}\n"
 
                 f"STRATEGY 1\n"
-                f"Scanned: {stats['s1_symbols_scanned']}\n"
-                f"Sweeps:  {stats['s1_sweeps_found']}\n"
+                f"Scanned:     {stats['s1_symbols_scanned']}\n"
+                f"Sweeps:      {stats['s1_sweeps_found']}\n"
+                f"Triggered:   {stats['s1_entries_triggered']}\n"
+                f"Expired:     {stats['s1_expired']}\n"
+                f"Invalidated: {stats['s1_invalidated']}\n"
 
                 f"{'─' * 25}\n"
 
                 f"STRATEGY 2\n"
-                f"Scanned: {stats['s2_symbols_scanned']}\n"
-                f"MSS:     {stats['s2_mss_found']}\n"
-                f"OB:      {stats['s2_ob_found']}\n"
-                f"Setups:  {stats['s2_setups_saved']}\n"
+                f"Scanned:     {stats['s2_symbols_scanned']}\n"
+                f"MSS:         {stats['s2_mss_found']}\n"
+                f"OB:          {stats['s2_ob_found']}\n"
+                f"Setups:      {stats['s2_setups_saved']}\n"
+                f"Triggered:   {stats['s2_entries_triggered']}\n"
+                f"Expired:     {stats['s2_expired']}\n"
+                f"Invalidated: {stats['s2_invalidated']}\n"
 
                 f"{'─' * 25}\n"
 
                 f"STRATEGY 3\n"
-                f"Scanned: {stats['s3_symbols_scanned']}\n"
-                f"MSS:     {stats['s3_mss_found']}\n"
-                f"FVG:     {stats['s3_fvg_found']}\n"
-                f"Setups:  {stats['s3_setups_saved']}\n"
+                f"Scanned:     {stats['s3_symbols_scanned']}\n"
+                f"MSS:         {stats['s3_mss_found']}\n"
+                f"FVG:         {stats['s3_fvg_found']}\n"
+                f"Setups:      {stats['s3_setups_saved']}\n"
+                f"Triggered:   {stats['s3_entries_triggered']}\n"
+                f"Expired:     {stats['s3_expired']}\n"
+                f"Invalidated: {stats['s3_invalidated']}\n"
 
                 f"{'─' * 25}\n"
 

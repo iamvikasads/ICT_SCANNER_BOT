@@ -155,6 +155,10 @@ class Strategy3EntryScanner:
 
                 )
 
+                StatsManager.increment(
+                    "s3_expired"
+                )
+
                 print(
                     f"{symbol} "
                     f"-> Setup EXPIRED"
@@ -203,6 +207,10 @@ class Strategy3EntryScanner:
 
                     )
 
+                    StatsManager.increment(
+                        "s3_invalidated"
+                    )
+
                     print(
                         f"{symbol} "
                         f"-> FVG INVALIDATED"
@@ -230,6 +238,10 @@ class Strategy3EntryScanner:
 
                         "INVALIDATED"
 
+                    )
+
+                    StatsManager.increment(
+                        "s3_invalidated"
                     )
 
                     print(
