@@ -15,7 +15,7 @@ from services.stats_manager import StatsManager
 
 class Strategy2EntryScanner:
 
-    VALID_CANDLES = 48
+    VALID_CANDLES = 192
 
     def __init__(self, downloader=None):
         self.downloader = downloader or OHLCVDownloader()

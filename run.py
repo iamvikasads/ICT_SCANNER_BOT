@@ -16,6 +16,11 @@ from scanner.strategy2_entry_scanner_v4 import Strategy2EntryScanner
 from scanner.strategy3_scanner_v4 import Strategy3Scanner
 from scanner.strategy3_entry_scanner_v4 import Strategy3EntryScanner
 
+from scanner.strategy4_scanner import Strategy4Scanner
+from scanner.strategy4_mss_scanner import Strategy4MSSScanner
+from scanner.strategy4_liquidity_scanner import Strategy4LiquidityScanner
+from scanner.strategy4_entry_scanner import Strategy4EntryScanner
+
 from services.trade_tracker import TradeTracker
 from services.daily_summary import DailySummary
 
@@ -103,6 +108,20 @@ try:
 
     strategy3 = Strategy3Scanner(downloader=shared_downloader)
     strategy3_entry = Strategy3EntryScanner(downloader=shared_downloader)
+
+    strategy4 = Strategy4Scanner(
+        downloader=shared_downloader
+    )
+
+    strategy4_mss = Strategy4MSSScanner(
+        downloader=shared_downloader
+    )
+
+    strategy4_liquidity = Strategy4LiquidityScanner(
+        downloader=shared_downloader
+    )
+
+    strategy4_entry = Strategy4EntryScanner()
 
     tracker = TradeTracker(downloader=shared_downloader)
     summary = DailySummary()
@@ -227,6 +246,37 @@ while True:
                 error_count += 1
                 logger.error(f"Strategy 3 error: {e}")
                 discord.send_error(f"⚠️ S3 ERROR\n{e}")
+
+            shared_downloader.clear_cache()
+
+            # ======================
+            # STRATEGY 4
+            # ======================
+
+            print(f"\n{now.strftime('%H:%M')} RUNNING STRATEGY 4")
+            logger.info("Strategy 4 scan start")
+
+            try:
+
+                strategy4.run()
+
+                strategy4_mss.run()
+
+                strategy4_liquidity.run()
+
+                strategy4_entry.run()
+
+            except Exception as e:
+
+                error_count += 1
+
+                logger.error(
+                    f"Strategy 4 error: {e}"
+                )
+
+                discord.send_error(
+                    f"⚠️ S4 ERROR\n{e}"
+                )
 
             shared_downloader.clear_cache()
 

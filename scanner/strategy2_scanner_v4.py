@@ -29,11 +29,11 @@ class Strategy2Scanner:
         self.swing_detector = SwingDetector()
         self.structure_detector = MarketStructure()
         self.mss_detector = MSSDetectorV2()
-        
+
         self.external_filter = (
             ExternalSwingFilter()
         )
-        
+
         self.logger = Strategy2Logger()
         self.liquidity_engine = LiquidityEngine()
 
@@ -93,10 +93,11 @@ class Strategy2Scanner:
                 interval="1h",
                 limit=200
             )
-            
-            all_obs = self.ob_detector.detect(candles_1h, mss_result)
-            
-            
+
+            all_obs = self.ob_detector.detect(
+                candles_1h,
+                mss_result
+            )
 
             # Check 1 — Guard against missing "obs"
             if not all_obs:
@@ -104,12 +105,15 @@ class Strategy2Scanner:
 
             if not all_obs.get("obs"):
                 return
-            
+
             # Apply Filtered OBs
             filtered_obs = [
                 ob
                 for ob in all_obs["obs"]
-                if ob.get("distance_to_mss", 999) <= 15
+                if ob.get(
+                    "distance_to_mss",
+                    999
+                ) <= 15
             ]
 
             filtered_obs = [
@@ -121,8 +125,6 @@ class Strategy2Scanner:
                 )
             ]
 
-            
-
             # Check 2 — Empty filtered list
             if not filtered_obs:
                 return
@@ -133,18 +135,26 @@ class Strategy2Scanner:
                 self.freshness_engine,
                 candles_1h
             )
-            
-            
+
+            # Phase 4
+            # Minimum OB quality filter
+            ranked_obs = (
+                self.candidate_selector
+                .filter_min_score(
+                    ranked_obs,
+                    min_score=6
+                )
+            )
+
             # Check 3 — Empty ranked list
             if not ranked_obs:
                 return
-            
+
             # Select best OB
             best_ob = self.candidate_selector.select_best(
                 ranked_obs
             )
 
-            
             if best_ob is None:
                 return
 
@@ -188,7 +198,6 @@ class Strategy2Scanner:
                 )
             )
 
-            
             if liquidity is None:
                 return
 

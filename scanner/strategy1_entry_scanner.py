@@ -23,7 +23,7 @@ from services.stats_manager import StatsManager
 
 class Strategy1EntryScanner:
 
-    VALID_CANDLES = 4
+    VALID_CANDLES = 10
 
     def __init__(self, downloader=None):
 

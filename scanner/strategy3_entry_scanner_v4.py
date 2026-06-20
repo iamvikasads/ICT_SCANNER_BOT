@@ -32,7 +32,7 @@ from core.structure.swings import SwingDetector
 class Strategy3EntryScanner:
 
     # 1. Change validity
-    VALID_CANDLES = 48
+    VALID_CANDLES = 192
 
     def __init__(
         self,

@@ -17,8 +17,37 @@ class DailySummary:
             stats = StatsManager.load()
 
             wins = trade_stats["wins"]
+
             losses = trade_stats["losses"]
+
+            breakevens = trade_stats["breakevens"]
+
+            locked_1r = trade_stats["locked_1r"]
+
             open_trades = trade_stats["open"]
+
+            open_trade_details = (
+                self.trade_logger
+                .get_open_trade_details()
+            )
+
+            open_section = ""
+
+            for trade in open_trade_details:
+
+                open_section += (
+
+                    f"\n{trade['symbol']} "
+                    f"{trade['direction']}\n"
+
+                    f"Entry: {trade['entry']}\n"
+
+                    f"SL: {trade['sl']}\n"
+
+                    f"BE: {trade['be_moved']}\n"
+
+                    f"+1R: {trade['one_r_locked']}\n"
+                )
 
             total_closed = wins + losses
 
@@ -70,10 +99,27 @@ class DailySummary:
 
                 f"{'─' * 25}\n"
 
-                f"WINS:    {wins}\n"
-                f"LOSSES:  {losses}\n"
-                f"WINRATE: {winrate}%\n"
-                f"OPEN:    {open_trades}\n"
+                f"STRATEGY 4\n"
+                f"Sweeps:      {stats['s4_sweeps_found']}\n"
+                f"MSS:         {stats['s4_mss_found']}\n"
+                f"Liquidity:   {stats['s4_liquidity_found']}\n"
+                f"Triggered:   {stats['s4_entries_triggered']}\n"
+                f"Invalidated: {stats['s4_invalidated']}\n"
+
+                f"{'─' * 25}\n"
+
+                f"WINS:        {wins}\n"
+                f"LOSSES:      {losses}\n"
+                f"BREAKEVEN:   {breakevens}\n"
+                f"LOCKED +1R:  {locked_1r}\n"
+                f"WINRATE:     {winrate}%\n"
+                f"OPEN:        {open_trades}\n"
+
+                f"{'─' * 25}\n"
+
+                f"OPEN TRADE STATUS\n"
+
+                f"{open_section}"
 
                 f"{'─' * 25}\n"
 

@@ -66,7 +66,7 @@ class Strategy3Scanner:
         self.mss_detector = (
             MSSDetectorV2()
         )
-        
+
         self.external_filter = (
             ExternalSwingFilter()
         )
@@ -134,7 +134,7 @@ class Strategy3Scanner:
                     lookback=2
                 )
             )
-            
+
             structure_swings = (
                 self.external_filter.filter(
                     swings
@@ -213,6 +213,21 @@ class Strategy3Scanner:
 
             ]
 
+            filtered_fvgs = [
+
+                fvg
+
+                for fvg
+
+                in filtered_fvgs
+
+                if fvg.get(
+                    "distance_to_mss",
+                    999
+                ) <= 20
+
+            ]
+
             # Score FVGs using 1H candles
             ranked_fvgs = (
                 self.fvg_ranker.score_all(
@@ -227,6 +242,14 @@ class Strategy3Scanner:
                 .filter_fresh(
                     ranked_fvgs,
                     min_freshness=0.50
+                )
+            )
+
+            ranked_fvgs = (
+                self.selector
+                .filter_min_score(
+                    ranked_fvgs,
+                    min_score=55
                 )
             )
 

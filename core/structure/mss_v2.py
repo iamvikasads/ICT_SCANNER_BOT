@@ -59,7 +59,7 @@ class MSSDetectorV2:
         )
 
         displacement = (
-            current_body > previous_body * 0.5
+            current_body > previous_body * 1.0
         )
 
         swing_highs = [
@@ -117,18 +117,16 @@ class MSSDetectorV2:
         )
 
         high_break = (
-            current_high > last_swing_high["price"] * 0.999
+            current_high > last_swing_high["price"]
             or
             current_close > last_swing_high["price"]
         )
 
         low_break = (
-            current_low < last_swing_low["price"] * 1.001
+            current_low < last_swing_low["price"]
             or
             current_close < last_swing_low["price"]
         )
-
-        
 
         # ==================================
         # BULLISH MSS (Reversal)

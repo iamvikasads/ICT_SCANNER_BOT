@@ -44,7 +44,7 @@ class Strategy1Scanner:
         liquidity
     ):
 
-        historical = candles[:-2]
+        historical = candles[-24:-2]
 
         for candle in historical:
 

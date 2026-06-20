@@ -31,7 +31,14 @@ class StatsManager:
         "s3_setups_saved": 0,
         "s3_entries_triggered": 0,
         "s3_expired": 0,
-        "s3_invalidated": 0
+        "s3_invalidated": 0,
+
+        # Strategy 4
+        "s4_sweeps_found": 0,
+        "s4_mss_found": 0,
+        "s4_liquidity_found": 0,
+        "s4_entries_triggered": 0,
+        "s4_invalidated": 0
     }
 
     @classmethod
