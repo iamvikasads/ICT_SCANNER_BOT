@@ -9,6 +9,14 @@ from core.storage.strategy4_logger import (
     Strategy4Logger
 )
 
+from alerts.discord_client import (
+    DiscordClient
+)
+
+from alerts.message_builder import (
+    MessageBuilder
+)
+
 
 class Strategy4Scanner:
 
@@ -24,6 +32,14 @@ class Strategy4Scanner:
 
         self.logger = (
             Strategy4Logger()
+        )
+
+        self.discord = (
+            DiscordClient()
+        )
+
+        self.message_builder = (
+            MessageBuilder()
         )
 
     def scan_symbol(
@@ -148,6 +164,17 @@ class Strategy4Scanner:
 
             self.logger.save_setup(
                 setup
+            )
+
+            message = (
+                self.message_builder
+                .build_s4_setup_message(
+                    setup
+                )
+            )
+
+            self.discord.send_setup(
+                message
             )
 
             StatsManager.increment(

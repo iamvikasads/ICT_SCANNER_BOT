@@ -12,6 +12,14 @@ from core.storage.liquidity_state_manager import (
 
 from services.stats_manager import StatsManager
 
+from alerts.discord_client import (
+    DiscordClient
+)
+
+from alerts.message_builder import (
+    MessageBuilder
+)
+
 
 class Strategy1Scanner:
 
@@ -35,6 +43,14 @@ class Strategy1Scanner:
 
         self.state_manager = (
             LiquidityStateManager()
+        )
+
+        self.discord = (
+            DiscordClient()
+        )
+
+        self.message_builder = (
+            MessageBuilder()
         )
 
     def _first_attempt_valid(
@@ -173,6 +189,19 @@ class Strategy1Scanner:
                 direction=direction,
                 liquidity=liquidity,
                 status="WAITING"
+            )
+
+            message = (
+                self.message_builder
+                .build_s1_setup_message(
+                    symbol=symbol,
+                    direction=direction,
+                    liquidity=liquidity
+                )
+            )
+
+            self.discord.send_setup(
+                message
             )
 
             self.state_manager.mark_waiting(

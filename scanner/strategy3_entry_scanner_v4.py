@@ -5,6 +5,7 @@ from core.storage.strategy3_logger import Strategy3Logger
 from core.storage.trade_logger import TradeLogger
 
 from core.risk.risk_engine import RiskEngine
+from core.indicators.atr import ATR
 
 from strategies.fvg.touch_scanner import (
     FVGTouchScanner
@@ -27,6 +28,9 @@ from services.stats_manager import (
 )
 
 from core.structure.swings import SwingDetector
+from core.filters.volatility_filter import (
+    VolatilityFilter
+)
 
 
 class Strategy3EntryScanner:
@@ -75,6 +79,10 @@ class Strategy3EntryScanner:
 
         self.swing_detector = (
             SwingDetector()
+        )
+
+        self.volatility_filter = (
+            VolatilityFilter()
         )
 
     def process_setup(
@@ -310,6 +318,20 @@ class Strategy3EntryScanner:
             if swing_highs:
                 latest_swing_high = swing_highs[-1]["price"]
 
+            atr = ATR.calculate(
+                candles_1h
+            )
+
+            if not self.volatility_filter.is_active_enough(
+                candles_1h
+            ):
+
+                print(
+                    f"{symbol} -> LOW VOLATILITY"
+                )
+
+                return
+
             risk = (
                 self.risk_engine.fvg(
                     direction=direction,
@@ -318,7 +340,8 @@ class Strategy3EntryScanner:
                     fvg_low=fvg_low,
                     liquidity_level=liquidity_level,
                     latest_swing_low=latest_swing_low,
-                    latest_swing_high=latest_swing_high
+                    latest_swing_high=latest_swing_high,
+                    atr=atr
                 )
             )
 

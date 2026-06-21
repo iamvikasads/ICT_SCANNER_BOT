@@ -39,6 +39,14 @@ from core.quality.pd_array_filter import (
     PDArrayFilter
 )
 
+from alerts.discord_client import (
+    DiscordClient
+)
+
+from alerts.message_builder import (
+    MessageBuilder
+)
+
 
 class Strategy3Scanner:
 
@@ -105,6 +113,14 @@ class Strategy3Scanner:
 
         self.setup_scanner = (
             FVGSetupScannerV4()
+        )
+
+        self.discord = (
+            DiscordClient()
+        )
+
+        self.message_builder = (
+            MessageBuilder()
         )
 
     def scan_symbol(
@@ -363,6 +379,19 @@ class Strategy3Scanner:
                 self.logger.save_setup(
                     setup
                 )
+
+                message = (
+                    self.message_builder
+                    .build_setup_message(
+                        setup
+                    )
+                )
+
+                if message:
+
+                    self.discord.send_setup(
+                        message
+                    )
 
             else:
 

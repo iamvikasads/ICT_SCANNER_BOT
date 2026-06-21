@@ -52,6 +52,50 @@ class MessageBuilder:
     # ENTRY ALERT
     # ==================================
 
+    def build_s1_setup_message(
+        self,
+        symbol,
+        direction,
+        liquidity
+    ):
+
+        emoji = self._direction_emoji(
+            direction
+        )
+
+        return (
+            f"{emoji} SETUP DETECTED\n"
+            f"{'─' * 22}\n"
+            f"Pair:      {symbol}\n"
+            f"Strategy:  TURTLE SOUP V4\n"
+            f"Direction: {direction}\n"
+            f"{'─' * 22}\n"
+            f"Swept:     {liquidity}\n"
+            f"{'─' * 22}\n"
+            f"Status: Waiting confirmation"
+        )
+
+    def build_s4_setup_message(
+        self,
+        setup
+    ):
+
+        emoji = self._direction_emoji(
+            setup["direction"]
+        )
+
+        return (
+            f"{emoji} SETUP DETECTED\n"
+            f"{'─' * 22}\n"
+            f"Pair:      {setup['symbol']}\n"
+            f"Strategy:  LIQUIDITY SWEEP + MSS\n"
+            f"Direction: {setup['direction']}\n"
+            f"{'─' * 22}\n"
+            f"Swept:     {setup['liquidity']}\n"
+            f"{'─' * 22}\n"
+            f"Status: Waiting MSS"
+        )
+
     def build_entry_message(self, entry):
 
         direction = entry["direction"]

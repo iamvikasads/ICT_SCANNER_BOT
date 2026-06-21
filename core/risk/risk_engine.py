@@ -7,6 +7,8 @@ class RiskEngine:
     MIN_RR = 2.0
     MAX_RR = 3.0
 
+    ATR_MULTIPLIER = 0.75
+
     def __init__(self):
         pass
 
@@ -100,11 +102,26 @@ class RiskEngine:
         direction,
         entry,
         sweep_level,
-        liquidity_level
+        liquidity_level,
+        atr=None
     ):
 
-        buffer = (
+        fixed_buffer = (
             sweep_level * 0.001
+        )
+
+        atr_buffer = 0
+
+        if atr is not None:
+
+            atr_buffer = (
+                atr
+                * self.ATR_MULTIPLIER
+            )
+
+        buffer = max(
+            fixed_buffer,
+            atr_buffer
         )
 
         if direction == "LONG":
@@ -205,13 +222,28 @@ class RiskEngine:
         ob_low,
         liquidity_level,
         latest_swing_low=None,
-        latest_swing_high=None
+        latest_swing_high=None,
+        atr=None
     ):
 
-        buffer = (
+        zone_buffer = (
             abs(
                 ob_high - ob_low
             ) * 0.10
+        )
+
+        atr_buffer = 0
+
+        if atr is not None:
+
+            atr_buffer = (
+                atr
+                * self.ATR_MULTIPLIER
+            )
+
+        buffer = max(
+            zone_buffer,
+            atr_buffer
         )
 
         if direction == "LONG":
@@ -326,13 +358,28 @@ class RiskEngine:
         fvg_low,
         liquidity_level,
         latest_swing_low=None,
-        latest_swing_high=None
+        latest_swing_high=None,
+        atr=None
     ):
 
-        buffer = (
+        zone_buffer = (
             abs(
                 fvg_high - fvg_low
             ) * 0.10
+        )
+
+        atr_buffer = 0
+
+        if atr is not None:
+
+            atr_buffer = (
+                atr
+                * self.ATR_MULTIPLIER
+            )
+
+        buffer = max(
+            zone_buffer,
+            atr_buffer
         )
 
         if direction == "LONG":
@@ -370,6 +417,115 @@ class RiskEngine:
 
             sl = (
                 base_sl + buffer
+            )
+
+            risk = (
+                sl - entry
+            )
+
+            reward = (
+                entry
+                - liquidity_level
+            )
+
+        if not self._is_valid_risk(
+            entry,
+            risk
+        ):
+            return None
+
+        if reward <= 0:
+            return None
+
+        rr = (
+            reward / risk
+        )
+
+        if rr < self.MIN_RR:
+            return None
+
+        if rr > self.MAX_RR:
+
+            rr = self.MAX_RR
+
+            if direction == "LONG":
+
+                tp = (
+                    entry
+                    + (risk * rr)
+                )
+
+            else:
+
+                tp = (
+                    entry
+                    - (risk * rr)
+                )
+
+        else:
+
+            tp = liquidity_level
+
+        return {
+
+            "entry":
+                round(entry, 4),
+
+            "sl":
+                round(sl, 4),
+
+            "tp":
+                round(tp, 4),
+
+            "rr":
+                round(rr, 2)
+        }
+
+    # ==================================
+    # STRATEGY 4
+    # LIQUIDITY SWEEP + MSS
+    # ==================================
+
+    def strategy4(
+        self,
+        direction,
+        entry,
+        sweep_high,
+        sweep_low,
+        liquidity_level,
+        atr=None
+    ):
+
+        atr_buffer = 0
+
+        if atr is not None:
+
+            atr_buffer = (
+                atr
+                * 0.50
+            )
+
+        if direction == "LONG":
+
+            sl = (
+                sweep_low
+                - atr_buffer
+            )
+
+            risk = (
+                entry - sl
+            )
+
+            reward = (
+                liquidity_level
+                - entry
+            )
+
+        else:
+
+            sl = (
+                sweep_high
+                + atr_buffer
             )
 
             risk = (

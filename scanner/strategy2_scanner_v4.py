@@ -20,6 +20,14 @@ from core.quality.candidate_selector import CandidateSelector
 from core.quality.setup_manager import SetupManager
 from core.quality.pd_array_filter import PDArrayFilter
 
+from alerts.discord_client import (
+    DiscordClient
+)
+
+from alerts.message_builder import (
+    MessageBuilder
+)
+
 
 class Strategy2Scanner:
 
@@ -44,6 +52,14 @@ class Strategy2Scanner:
         self.setup_manager = SetupManager()
         self.pd_filter = PDArrayFilter()
         self.setup_scanner = SetupScannerV4()
+
+        self.discord = (
+            DiscordClient()
+        )
+
+        self.message_builder = (
+            MessageBuilder()
+        )
 
     def scan_symbol(self, symbol):
 
@@ -230,6 +246,20 @@ class Strategy2Scanner:
                 self.logger.save_setup(
                     setup
                 )
+
+                message = (
+                    self.message_builder
+                    .build_setup_message(
+                        setup
+                    )
+                )
+
+                if message:
+
+                    self.discord.send_setup(
+                        message
+                    )
+
             else:
                 self.logger.replace_setup(
                     active_setup["setup_id"],

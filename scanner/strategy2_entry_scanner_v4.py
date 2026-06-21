@@ -7,6 +7,10 @@ from strategies.extreme_ob.touch_scanner import TouchScanner
 from core.risk.risk_engine import RiskEngine
 from core.filters.daily_bias import DailyBiasFilter
 from core.structure.swings import SwingDetector
+from core.indicators.atr import ATR
+from core.filters.volatility_filter import (
+    VolatilityFilter
+)
 
 from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
@@ -25,6 +29,9 @@ class Strategy2EntryScanner:
         self.risk_engine = RiskEngine()
         self.bias_filter = DailyBiasFilter()
         self.swing_detector = SwingDetector()
+        self.volatility_filter = (
+            VolatilityFilter()
+        )
 
         self.discord = DiscordClient()
         self.message_builder = MessageBuilder()
@@ -187,6 +194,20 @@ class Strategy2EntryScanner:
             if swing_highs:
                 latest_swing_high = swing_highs[-1]["price"]
 
+            atr = ATR.calculate(
+                candles_1h
+            )
+
+            if not self.volatility_filter.is_active_enough(
+                candles_1h
+            ):
+
+                print(
+                    f"{symbol} -> LOW VOLATILITY"
+                )
+
+                return
+
             risk = (
                 self.risk_engine.extreme_ob(
                     direction=direction,
@@ -195,7 +216,8 @@ class Strategy2EntryScanner:
                     ob_low=ob_low,
                     liquidity_level=liquidity_level,
                     latest_swing_low=latest_swing_low,
-                    latest_swing_high=latest_swing_high
+                    latest_swing_high=latest_swing_high,
+                    atr=atr
                 )
             )
 

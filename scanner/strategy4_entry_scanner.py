@@ -12,6 +12,28 @@ from services.stats_manager import (
     StatsManager
 )
 
+from core.risk.risk_engine import (
+    RiskEngine
+)
+
+from alerts.discord_client import (
+    DiscordClient
+)
+
+from alerts.message_builder import (
+    MessageBuilder
+)
+
+from core.binance.downloader import (
+    OHLCVDownloader
+)
+
+from core.indicators.atr import ATR
+
+from core.filters.volatility_filter import (
+    VolatilityFilter
+)
+
 
 class Strategy4EntryScanner:
 
@@ -23,6 +45,26 @@ class Strategy4EntryScanner:
 
         self.trade_logger = (
             TradeLogger()
+        )
+
+        self.risk_engine = (
+            RiskEngine()
+        )
+
+        self.downloader = (
+            OHLCVDownloader()
+        )
+
+        self.discord = (
+            DiscordClient()
+        )
+
+        self.message_builder = (
+            MessageBuilder()
+        )
+
+        self.volatility_filter = (
+            VolatilityFilter()
         )
 
     def process_setup(
@@ -40,105 +82,92 @@ class Strategy4EntryScanner:
                 setup["mss_close"]
             )
 
+            mss_high = float(
+                setup["mss_high"]
+            )
+
+            mss_low = float(
+                setup["mss_low"]
+            )
+
+            equilibrium = (
+                mss_high
+                +
+                mss_low
+            ) / 2
+
             liquidity_level = float(
                 setup["liquidity_level"]
             )
 
-            if direction == "LONG":
+            if (
+                direction == "LONG"
+                and
+                entry > equilibrium
+            ):
 
-                sl = float(
-                    setup["sweep_low"]
+                print(
+                    f"{setup['symbol']} -> PREMIUM LONG"
                 )
 
-                risk = (
-                    entry
-                    -
-                    sl
-                )
-
-                if risk <= 0:
-                    return
-
-                tp = (
-                    liquidity_level
-                )
-
-                reward = (
-                    tp
-                    -
-                    entry
-                )
-
-            else:
-
-                sl = float(
-                    setup["sweep_high"]
-                )
-
-                risk = (
-                    sl
-                    -
-                    entry
-                )
-
-                if risk <= 0:
-                    return
-
-                tp = (
-                    liquidity_level
-                )
-
-                reward = (
-                    entry
-                    -
-                    tp
-                )
-
-            if reward <= 0:
                 return
 
-            rr = (
-                reward
-                /
-                risk
+            if (
+                direction == "SHORT"
+                and
+                entry < equilibrium
+            ):
+
+                print(
+                    f"{setup['symbol']} -> DISCOUNT SHORT"
+                )
+
+                return
+
+            candles_1h = (
+                self.downloader.get_ohlcv(
+                    symbol=setup["symbol"],
+                    interval="1h",
+                    limit=200
+                )
             )
 
-            # =====================
-            # MIN RR FILTER
-            # =====================
+            atr = ATR.calculate(
+                candles_1h
+            )
 
-            if rr < 2:
+            if not self.volatility_filter.is_active_enough(
+                candles_1h
+            ):
+
+                print(
+                    f"{setup['symbol']} -> LOW VOLATILITY"
+                )
+
                 return
 
-            # =====================
-            # CAP RR TO 3
-            # =====================
+            risk_data = (
+                self.risk_engine.strategy4(
+                    direction=direction,
+                    entry=entry,
+                    sweep_high=float(
+                        setup["sweep_high"]
+                    ),
+                    sweep_low=float(
+                        setup["sweep_low"]
+                    ),
+                    liquidity_level=liquidity_level,
+                    atr=atr
+                )
+            )
 
-            if rr > 3:
+            if risk_data is None:
+                return
 
-                if direction == "LONG":
-
-                    tp = (
-                        entry
-                        +
-                        (
-                            risk
-                            * 3
-                        )
-                    )
-
-                else:
-
-                    tp = (
-                        entry
-                        -
-                        (
-                            risk
-                            * 3
-                        )
-                    )
-
-                rr = 3.0
+            entry = risk_data["entry"]
+            sl = risk_data["sl"]
+            tp = risk_data["tp"]
+            rr = risk_data["rr"]
 
             entry_data = {
 
@@ -199,6 +228,19 @@ class Strategy4EntryScanner:
 
             StatsManager.increment(
                 "s4_entries_triggered"
+            )
+
+            message = (
+
+                self.message_builder
+                .build_entry_message(
+                    entry_data
+                )
+
+            )
+
+            self.discord.send_entry(
+                message
             )
 
             print(

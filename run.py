@@ -210,8 +210,14 @@ while True:
                 strategy1_entry.run()
             except Exception as e:
                 error_count += 1
-                logger.error(f"Strategy 1 error: {e}")
-                discord.send_error(f"⚠️ S1 ERROR\n{e}")
+
+                logger.error(
+                    f"Strategy 1 error: {e}"
+                )
+
+                discord.send_error(
+                    f"⚠️ S1 ERROR\n{e}"
+                )
 
             shared_downloader.clear_cache()
 
@@ -227,8 +233,14 @@ while True:
                 strategy2_entry.run()
             except Exception as e:
                 error_count += 1
-                logger.error(f"Strategy 2 error: {e}")
-                discord.send_error(f"⚠️ S2 ERROR\n{e}")
+
+                logger.error(
+                    f"Strategy 2 error: {e}"
+                )
+
+                discord.send_error(
+                    f"⚠️ S2 ERROR\n{e}"
+                )
 
             shared_downloader.clear_cache()
 
@@ -244,8 +256,14 @@ while True:
                 strategy3_entry.run()
             except Exception as e:
                 error_count += 1
-                logger.error(f"Strategy 3 error: {e}")
-                discord.send_error(f"⚠️ S3 ERROR\n{e}")
+
+                logger.error(
+                    f"Strategy 3 error: {e}"
+                )
+
+                discord.send_error(
+                    f"⚠️ S3 ERROR\n{e}"
+                )
 
             shared_downloader.clear_cache()
 
@@ -291,8 +309,14 @@ while True:
                 tracker.run()
             except Exception as e:
                 error_count += 1
-                logger.error(f"Tracker error: {e}")
-                discord.send_error(f"⚠️ TRACKER ERROR\n{e}")
+
+                logger.error(
+                    f"Tracker error: {e}"
+                )
+
+                discord.send_error(
+                    f"⚠️ TRACKER ERROR\n{e}"
+                )
 
             last_run_slot = current_slot
             logger.info("=== SCAN COMPLETE ===")
@@ -312,6 +336,13 @@ while True:
     except Exception as e:
 
         error_count += 1
-        logger.error(f"Main loop error: {e}")
-        discord.send_error(f"🚨 ICT SCANNER ERROR\n\n{e}")
+
+        logger.error(
+            f"Main loop error: {e}"
+        )
+
+        discord.send_error(
+            f"🚨 ICT SCANNER ERROR\n\n{e}"
+        )
+
         time.sleep(10)

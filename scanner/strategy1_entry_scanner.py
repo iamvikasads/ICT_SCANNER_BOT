@@ -13,8 +13,12 @@ from core.storage.csv_logger import CSVLogger
 from core.storage.trade_logger import TradeLogger
 
 from core.risk.risk_engine import RiskEngine
+from core.indicators.atr import ATR
 
 from core.filters.daily_bias import DailyBiasFilter
+from core.filters.volatility_filter import (
+    VolatilityFilter
+)
 
 from alerts.discord_client import DiscordClient
 from alerts.message_builder import MessageBuilder
@@ -65,6 +69,10 @@ class Strategy1EntryScanner:
 
         self.bias_filter = (
             DailyBiasFilter()
+        )
+
+        self.volatility_filter = (
+            VolatilityFilter()
         )
 
         self.discord = (
@@ -265,19 +273,102 @@ class Strategy1EntryScanner:
 
                 return
 
+            swing_highs = [
+
+                s["price"]
+
+                for s in swings
+
+                if s["type"] == "swing_high"
+
+            ]
+
+            swing_lows = [
+
+                s["price"]
+
+                for s in swings
+
+                if s["type"] == "swing_low"
+
+            ]
+
+            if (
+                direction == "LONG"
+                and
+                swing_highs
+            ):
+
+                equilibrium = (
+
+                    sweep_level
+                    +
+                    swing_highs[-1]
+
+                ) / 2
+
+                if entry > equilibrium:
+
+                    print(
+                        f"{symbol} -> PREMIUM LONG"
+                    )
+
+                    return
+
+            if (
+                direction == "SHORT"
+                and
+                swing_lows
+            ):
+
+                equilibrium = (
+
+                    sweep_level
+                    +
+                    swing_lows[-1]
+
+                ) / 2
+
+                if entry < equilibrium:
+
+                    print(
+                        f"{symbol} -> DISCOUNT SHORT"
+                    )
+
+                    return
+
+            candles_1h = (
+                self.downloader.get_ohlcv(
+                    symbol=symbol,
+                    interval="1h",
+                    limit=200
+                )
+            )
+
+            atr = ATR.calculate(
+                candles_1h
+            )
+
+            if not self.volatility_filter.is_active_enough(
+                candles_1h
+            ):
+
+                print(
+                    f"{symbol} -> LOW VOLATILITY"
+                )
+
+                return
+
             risk = (
                 self.risk_engine
                 .turtle_soup_v3(
-
                     direction=direction,
-
                     entry=entry,
-
                     sweep_level=sweep_level,
-
                     liquidity_level=(
                         liquidity["level"]
-                    )
+                    ),
+                    atr=atr
                 )
             )
 
