@@ -1,24 +1,35 @@
+"""
+Single shared logger used across the whole bot.
+Rotating file handler + console handler.
+"""
 import logging
-import os
-from datetime import datetime
+from logging.handlers import RotatingFileHandler
+
+from config import settings
 
 
-def setup_logger():
+def get_logger(name: str = "ema_bot") -> logging.Logger:
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        # Already configured (avoid duplicate handlers on repeated imports)
+        return logger
 
-    os.makedirs("logs", exist_ok=True)
+    logger.setLevel(logging.INFO)
 
-    log_file = f"logs/bot_{datetime.now().strftime('%Y%m%d')}.log"
-
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-            logging.FileHandler(log_file, encoding="utf-8"),
-            logging.StreamHandler()
-        ]
+    fmt = logging.Formatter(
+        "%(asctime)s | %(levelname)-7s | %(name)s | %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
     )
 
-    return logging.getLogger("ict_bot")
+    file_handler = RotatingFileHandler(
+        settings.LOG_FILE, maxBytes=5 * 1024 * 1024, backupCount=5
+    )
+    file_handler.setFormatter(fmt)
 
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(fmt)
 
-logger = setup_logger()
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
