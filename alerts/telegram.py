@@ -110,8 +110,7 @@ def send_crash_message(error: Exception) -> bool:
 
 def send_scan_summary(
     scanned: int,
-    long_signals: int,
-    short_signals: int,
+    alerts_sent: int,
     next_scan: str,
 ) -> bool:
     """
@@ -120,15 +119,11 @@ def send_scan_summary(
 
     now = datetime.now(IST).strftime("%d-%m-%Y %H:%M:%S")
 
-    total_alerts = long_signals + short_signals
-
     message = (
         "📊 SCAN COMPLETE\n\n"
         f"Time : {now} IST\n\n"
         f"Coins Scanned : {scanned}\n"
-        f"🟢 Long Signals : {long_signals}\n"
-        f"🔴 Short Signals : {short_signals}\n"
-        f"📨 Alerts Sent : {total_alerts}\n\n"
+        f"📨 Alerts Sent : {alerts_sent}\n\n"
         f"Next Scan : {next_scan}"
     )
 
